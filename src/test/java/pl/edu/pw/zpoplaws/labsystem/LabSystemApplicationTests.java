@@ -1,4 +1,4 @@
-package pl.edu.pw.zpoplaw.labsystem;
+package pl.edu.pw.zpoplaws.labsystem;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
