@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document;
 
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import pl.edu.pw.zpoplaws.labsystem.Dto.ResultDto;
 import pl.edu.pw.zpoplaws.labsystem.Model.Result;
 import pl.edu.pw.zpoplaws.labsystem.Repository.ResultRepository;
 import javax.xml.transform.Transformer;
@@ -15,6 +16,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
+import java.util.List;
 
 import static pl.edu.pw.zpoplaws.labsystem.Utils.ResourceUtils.getResourceAsString;
 
@@ -78,7 +80,7 @@ public class ResultServiceImpl implements ResultService {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
             builder.withW3cDocument(new W3CDom().fromJsoup(document), "/");
-            builder.useFont(new File(ResultServiceImpl.class.getClassLoader().getResource("SourceSans3-Regular.ttf").getFile()),"Noto sans");
+            builder.useFont(new File(ResultServiceImpl.class.getClassLoader().getResource("font/SourceSans3-Regular.ttf").getFile()),"Noto sans");
             builder.toStream(os);
             builder.run();
             pdf = os.toByteArray();
@@ -103,6 +105,11 @@ public class ResultServiceImpl implements ResultService {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public List<ResultDto> getAllResultsByUser() {
+        return null;
     }
 
 }

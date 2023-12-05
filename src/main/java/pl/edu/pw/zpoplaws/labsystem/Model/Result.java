@@ -16,5 +16,4 @@ public class Result {
     String patientPESEL;
     String xmlFile;
 
-
 }

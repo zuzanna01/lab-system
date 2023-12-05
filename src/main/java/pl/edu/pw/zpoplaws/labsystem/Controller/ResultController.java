@@ -1,17 +1,18 @@
 package pl.edu.pw.zpoplaws.labsystem.Controller;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.edu.pw.zpoplaws.labsystem.Dto.ResultDto;
 import pl.edu.pw.zpoplaws.labsystem.Service.ResultService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/result")
 @AllArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
 public class ResultController {
 
     ResultService resultService;
@@ -31,6 +32,11 @@ public class ResultController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(body);
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<ResultDto>> getName(@RequestHeader("Authorization") String authToken) {
+     return  null;
     }
 
 }

@@ -2,11 +2,12 @@ package pl.edu.pw.zpoplaws.labsystem.Repository;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import pl.edu.pw.zpoplaws.labsystem.Model.User;
+import pl.edu.pw.zpoplaws.labsystem.Model.Result;
 
 import java.util.Optional;
 
-public interface UserRepository extends MongoRepository<User, ObjectId> {
+public interface ResultRepository extends MongoRepository<Result, ObjectId> {
 
-    Optional<User> findByPESEL(String PESEL);
+    Optional<Result> findById(ObjectId id);
+
 }

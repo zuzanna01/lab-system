@@ -1,6 +1,9 @@
 package pl.edu.pw.zpoplaws.labsystem.Service;
 
 import org.w3c.dom.Document;
+import pl.edu.pw.zpoplaws.labsystem.Dto.ResultDto;
+
+import java.util.List;
 
 public interface ResultService {
     boolean saveToDatabase(String xml);
@@ -15,5 +18,7 @@ public interface ResultService {
     byte[] convertToPdf(String html);
 
     String convertToHtml(String xml);
+
+    List<ResultDto> getAllResultsByUser();
 
 }
