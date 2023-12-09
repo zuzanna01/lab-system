@@ -30,12 +30,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto login(CredentialsDto credentials) {
-        var user = userRepository.findByPESEL(credentials.getEmail()).orElseThrow(
+        var user = userRepository.findByEmail(credentials.getEmail()).orElseThrow(
         () -> new AppException("Unknown user", HttpStatus.NOT_FOUND));
 
         if(passwordEncoder.matches(CharBuffer.wrap(credentials.getPassword()),user.getPassword())){
             return UserDto.builder().name(user.getName()).lastname(user.getLastname())
-                    .e_mail(user.getE_mail()).phoneNumber(user.getPhoneNumber()).id(user.getId().toString()).build();
+                    .e_mail(user.getEmail()).phoneNumber(user.getPhoneNumber()).id(user.getId().toString()).build();
         }
         throw new AppException("Invalid password", HttpStatus.BAD_REQUEST);
     }
@@ -48,12 +48,18 @@ public class UserServiceImpl implements UserService {
            throw new AppException("User already exist", HttpStatus.BAD_REQUEST);
        }
 
-       User newUser = User.builder()
+      user  = userRepository.findByEmail(signUpDto.getE_mail());
+
+       if(user.isPresent()){
+           throw new AppException("User already exist", HttpStatus.BAD_REQUEST);
+       }
+
+        User newUser = User.builder()
                .PESEL(signUpDto.getPESEL())
                .name(signUpDto.getName())
                .lastname(signUpDto.getLastname())
                .userRole(UserRole.ROLE_PATIENT)
-               .e_mail(signUpDto.getE_mail())
+               .email(signUpDto.getE_mail())
                .phoneNumber(signUpDto.getPhoneNumber())
                .password(passwordEncoder.encode(CharBuffer.wrap(signUpDto.getPassword())))
                .build();
@@ -61,7 +67,7 @@ public class UserServiceImpl implements UserService {
         var  u = userRepository.save(newUser);
 
         return UserDto.builder().name(u.getName()).lastname(u.getLastname())
-                .e_mail(u.getE_mail()).phoneNumber(u.getPhoneNumber()).id(u.getId().toString()).build();
+                .e_mail(u.getEmail()).phoneNumber(u.getPhoneNumber()).id(u.getId().toString()).build();
     }
 
 

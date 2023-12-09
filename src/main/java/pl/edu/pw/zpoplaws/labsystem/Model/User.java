@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Value;
 import org.bson.types.ObjectId;
+import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,7 +20,8 @@ public class User {
     String password;
     String name;
     String lastname;
-    String e_mail;
+    String email;
     String phoneNumber;
     UserRole userRole;
+    Boolean isActive;
 }

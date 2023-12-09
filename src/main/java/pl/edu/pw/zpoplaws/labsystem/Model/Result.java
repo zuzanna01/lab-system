@@ -13,7 +13,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Result {
     @Id
     String id;
-    String patientPESEL;
+    String patientId;
     String xmlFile;
-
 }
