@@ -14,8 +14,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import pl.edu.pw.zpoplaws.labsystem.Dto.ResultDto;
 import pl.edu.pw.zpoplaws.labsystem.Model.Result;
+import pl.edu.pw.zpoplaws.labsystem.Model.User;
 import pl.edu.pw.zpoplaws.labsystem.Repository.ResultRepository;
+import pl.edu.pw.zpoplaws.labsystem.Repository.UserRepository;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,12 +27,15 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
 public class ResultServiceImpl implements ResultService {
 
     private final ResultRepository resultRepository;
+    private final UserRepository userRepository;
 
     String xsltFilePath = "C:\\Users\\User\\Desktop\\lab-system\\src\\main\\resources\\Transformaty_XSLT_CDA_PL_IG_1.3.1.2\\CDA_PL_IG_1.3.1.xsl";
     String enrichment = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -41,7 +47,7 @@ public class ResultServiceImpl implements ResultService {
         if (validateXmlFile(xml)) {
             String fullxml = enrich(xml);
             var id = getPeselFromXml(fullxml);
-            resultRepository.save(Result.builder().xmlFile(fullxml).patientId(id).build());
+            resultRepository.save(Result.builder().xmlFile(fullxml).patientId(id).uploadTime(LocalDateTime.now()).build());
             return true;
         } else {
             return false;
@@ -165,8 +171,17 @@ public class ResultServiceImpl implements ResultService {
     }
 
     @Override
-    public Page<Result> getAllResultsByUser(String patientId, Pageable pageable) {
-        return resultRepository.findByPatientId(patientId, pageable);
+    public Page<ResultDto> getAllResultsByUser(String patientId, Pageable pageable) {
+        User user = userRepository.findById(new ObjectId(patientId)).get();
+        return resultRepository.findByPatientId(user.getPESEL(), pageable)
+                .map(this::toResultDto);
+    }
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+    public ResultDto toResultDto (Result result) {
+
+        var time = formatter.format(result.getUploadTime());
+        return  ResultDto.builder().id(result.getId()).resultName(result.getResultName()).uploadTime(time).build();
     }
 
 }

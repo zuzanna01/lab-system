@@ -19,7 +19,7 @@ public class DatabaseInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-   User patient = User.builder()
+  /*  User patient = User.builder()
                 .PESEL("62091599999")
                 .password(passwordEncoder.encode("password"))
                 .name("Jan Franciszek")
@@ -29,7 +29,7 @@ public class DatabaseInitializer implements CommandLineRunner {
                 .userRole(UserRole.ROLE_PATIENT)
                 .isActive(true)
                 .build();
-    /*
+
         User admin = User.builder()
                 .PESEL("96040701509")
                 .password(passwordEncoder.encode("password"))
@@ -54,7 +54,7 @@ public class DatabaseInitializer implements CommandLineRunner {
 
         userRepository.saveAll(List.of(patient,admin,employee));
 */
-        userRepository.save(patient);
+
 
     }
 }

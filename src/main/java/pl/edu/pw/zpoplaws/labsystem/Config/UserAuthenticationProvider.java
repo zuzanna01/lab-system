@@ -6,17 +6,20 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.zpoplaws.labsystem.Model.User;
 import pl.edu.pw.zpoplaws.labsystem.Service.UserService;
 
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.Date;
 
 @RequiredArgsConstructor
 @Component
@@ -32,9 +35,7 @@ public class UserAuthenticationProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String userId) {
-        Date now = new Date();
-        Date validity = new Date(now.getTime() + 3600000);
+    public String createToken(String userId, Instant now, Instant validity) {
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
         return JWT.create()
                 .withSubject(userId)
@@ -58,5 +59,12 @@ public class UserAuthenticationProvider {
         return decoded.getSubject();
     }
 
-
+    public Cookie createCookie( String tokenName, String tokenValue, int age) {
+        Cookie cookie = new Cookie(tokenName, tokenValue);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(age);
+        return cookie;
+    }
 }

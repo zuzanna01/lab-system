@@ -21,7 +21,7 @@ public interface ResultService {
 
     String convertToHtml(String xml);
 
-    Page<Result> getAllResultsByUser(String patientId, Pageable pageable);
+    Page<ResultDto> getAllResultsByUser(String patientId, Pageable pageable);
 
     String getPeselFromXml(String xml) ;
 
