@@ -35,7 +35,8 @@ public class UserServiceImpl implements UserService {
 
         if(passwordEncoder.matches(CharBuffer.wrap(credentials.getPassword()),user.getPassword())){
             return UserDto.builder().name(user.getName()).lastname(user.getLastname())
-                    .e_mail(user.getEmail()).phoneNumber(user.getPhoneNumber()).id(user.getId().toString()).build();
+                    .e_mail(user.getEmail()).phoneNumber(user.getPhoneNumber()).id(user.getId().toString())
+                    .role(user.getUserRole().name()).build();
         }
         throw new AppException("Invalid password", HttpStatus.BAD_REQUEST);
     }

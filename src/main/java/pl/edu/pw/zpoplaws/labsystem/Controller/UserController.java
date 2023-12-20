@@ -1,20 +1,13 @@
 package pl.edu.pw.zpoplaws.labsystem.Controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.zpoplaws.labsystem.Config.UserAuthenticationProvider;
-import pl.edu.pw.zpoplaws.labsystem.Dto.CredentialsDto;
 import pl.edu.pw.zpoplaws.labsystem.Dto.SignUpDto;
 import pl.edu.pw.zpoplaws.labsystem.Dto.UserDto;
 import pl.edu.pw.zpoplaws.labsystem.Model.User;
 import pl.edu.pw.zpoplaws.labsystem.Service.UserService;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/user")
