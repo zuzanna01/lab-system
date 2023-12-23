@@ -39,10 +39,9 @@ public class ResultController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<Page<ResultDto>> getResultsByPatient(@CookieValue(name="access_token") String authToken) {
+    public ResponseEntity<Page<ResultDto>> getResultsByPatient(@CookieValue(name="access_token") String authToken, Pageable pageable ) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        Pageable pageable = PageRequest.of(0,2);
         var id = userAuthProvider.getID(authToken);
         var list = resultService.getAllResultsByUser(id, pageable);
         return ResponseEntity.ok().headers(headers).body(list);

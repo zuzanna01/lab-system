@@ -1,4 +1,26 @@
 package pl.edu.pw.zpoplaws.labsystem.Service;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import pl.edu.pw.zpoplaws.labsystem.Dto.ExamOfferDto;
+import pl.edu.pw.zpoplaws.labsystem.Mapper.ExamMapper;
+import pl.edu.pw.zpoplaws.labsystem.Repository.ExamOfferRepository;
+import pl.edu.pw.zpoplaws.labsystem.Repository.ExamPackageRepository;
+
+@Service
+@RequiredArgsConstructor
 public class ExamServiceImpl implements ExamService {
+
+    private final ExamOfferRepository examOfferRepository;
+    private final ExamPackageRepository examPackageRepository;
+    private final ExamMapper examMapper;
+
+
+    @Override
+    public Page<ExamOfferDto> getExamOffersWithPagination(Pageable pageable) {
+       var page = examOfferRepository.findAll(pageable);
+       return page.map(examMapper::toDto);
+    }
 }

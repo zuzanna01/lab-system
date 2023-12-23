@@ -5,12 +5,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.zpoplaws.labsystem.Model.*;
-import pl.edu.pw.zpoplaws.labsystem.Repository.ExamOfferRepository;
-import pl.edu.pw.zpoplaws.labsystem.Repository.ExamPackageRepository;
-import pl.edu.pw.zpoplaws.labsystem.Repository.ExamRepository;
-import pl.edu.pw.zpoplaws.labsystem.Repository.UserRepository;
+import pl.edu.pw.zpoplaws.labsystem.Repository.*;
+import pl.edu.pw.zpoplaws.labsystem.Service.AppointmentService;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Component
 @RequiredArgsConstructor
@@ -21,6 +20,8 @@ public class DatabaseInitializer implements CommandLineRunner {
     private final ExamRepository examRepository;
     private final ExamOfferRepository examOfferRepository;
     private final ExamPackageRepository examPackageRepository;
+    private final LabPointRepository labPointRepository;
+    private final AppointmentService appointmentService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -95,6 +96,28 @@ public class DatabaseInitializer implements CommandLineRunner {
 
 
 
-        examPackageRepository.saveAll(List.of(examPackage));*/
+        examPackageRepository.saveAll(List.of(examPackage));
+
+        LabPoint lab1 = LabPoint.builder().
+                address("ul.Odkryta 41/12 \n 01-134 Warszawa").
+                closingTime(LocalTime.of(17,0,0)).
+                openingTime(LocalTime.of(7,0,0)).build();
+
+        LabPoint lab2 = LabPoint.builder().
+                address("ul.Słoneczna 11/4 \n 01-199 Warszawa").
+                closingTime(LocalTime.of(17,0,0)).
+                openingTime(LocalTime.of(7,0,0)).build();
+
+        labPointRepository.save(lab1);
+        labPointRepository.save(lab2);
+*/
+        var labs =labPointRepository.findAll();
+
+        for(LabPoint lab :labs) {
+            appointmentService.createAppointments(LocalDate.of(2023, 12,22), LocalDate.of(2023, 12,23), lab.getId());
+
+            //var timetable = appointmentService.getAvailableAppointments();
+        }
+
     }
 }

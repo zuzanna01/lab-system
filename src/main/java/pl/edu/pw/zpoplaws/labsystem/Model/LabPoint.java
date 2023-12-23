@@ -6,6 +6,7 @@ import lombok.Value;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import pl.edu.pw.zpoplaws.labsystem.Dto.LabPointDto;
 
 import java.time.LocalTime;
 
@@ -20,5 +21,14 @@ public class LabPoint {
     String address;
     LocalTime openingTime;
     LocalTime closingTime;
+
+    public LabPointDto toDto(){
+        return LabPointDto.builder().
+                id(this.id.toString()).
+                address(this.address).
+                openingTime(this.openingTime.toString()).
+                closingTime(this.closingTime.toString()).
+                build();
+    }
 
 }
