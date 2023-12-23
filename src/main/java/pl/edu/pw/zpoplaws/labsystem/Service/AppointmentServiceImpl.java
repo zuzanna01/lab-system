@@ -2,9 +2,13 @@ package pl.edu.pw.zpoplaws.labsystem.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import pl.edu.pw.zpoplaws.labsystem.Exception.AppException;
 import pl.edu.pw.zpoplaws.labsystem.Model.Appointment;
+import pl.edu.pw.zpoplaws.labsystem.Model.ExamOffer;
 import pl.edu.pw.zpoplaws.labsystem.Model.LabPoint;
+import pl.edu.pw.zpoplaws.labsystem.Model.User;
 import pl.edu.pw.zpoplaws.labsystem.Repository.AppointmentRepository;
 import pl.edu.pw.zpoplaws.labsystem.Repository.LabPointRepository;
 
@@ -82,5 +86,30 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<LabPoint> getAllLabPoints() {
         return labPointRepository.findAll();
     }
+
+    @Override
+    public Appointment makeAppointment(Appointment appointment, User patient, ExamOffer exam) {
+        appointment.reserve(exam, patient);
+        appointmentRepository.save(appointment);
+        return appointment;
+    }
+
+    @Override
+    public Appointment makeAppointment(ObjectId patientId, ObjectId examId, ObjectId labPoint, LocalDateTime localDateTime) {
+        return null;
+    }
+
+    @Override
+    public Appointment findAppointment(ObjectId LabPointId, LocalDateTime localDateTime) {
+        return appointmentRepository.findAvailableAppointmentsByDateTimeAndLabPoint(LabPointId, localDateTime).
+                stream().findFirst().orElseThrow(() -> new AppException("No available appointment found", HttpStatus.NOT_FOUND));
+    }
+
+    @Override
+    public Appointment findAppointment(ObjectId objectId) {
+        var optionalAppointment = appointmentRepository.findById(objectId);
+        return optionalAppointment.orElseThrow(() -> new AppException("Unknown appointment", HttpStatus.NOT_FOUND));
+    }
+
 
 }

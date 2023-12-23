@@ -15,5 +15,8 @@ public interface AppointmentRepository extends MongoRepository<Appointment, Obje
     List<Appointment> findAvailableAppointmentsByLabPointAndDateTimeBetween(
             ObjectId labPointId, LocalDateTime startDate, LocalDateTime endDate);
 
+    @Query("{'labPoint' : ?0,'dateTime' : ?1, 'status' : 'AVAILABLE'}")
+    List<Appointment> findAvailableAppointmentsByDateTimeAndLabPoint(ObjectId labPointId, LocalDateTime dateTime);
+
 
 }

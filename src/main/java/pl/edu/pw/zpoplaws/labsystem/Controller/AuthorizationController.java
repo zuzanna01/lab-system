@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.zpoplaws.labsystem.Config.UserAuthenticationProvider;
 import pl.edu.pw.zpoplaws.labsystem.Dto.CredentialsDto;
+import pl.edu.pw.zpoplaws.labsystem.Dto.SignUpDto;
 import pl.edu.pw.zpoplaws.labsystem.Service.UserService;
 
 import java.io.IOException;
@@ -49,6 +50,11 @@ public class AuthorizationController {
             e.printStackTrace();
             servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PostMapping("/register")
+    public void register(@RequestBody SignUpDto signUpDto) {
+
     }
 
     @PostMapping("/refresh")

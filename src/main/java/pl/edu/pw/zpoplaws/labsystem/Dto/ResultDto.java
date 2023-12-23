@@ -12,6 +12,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ResultDto {
     String id;
-    String resultName;
+    String examName;
     String uploadTime;
+    String creationTime;
+    String patientName;
+    String employeeName;
+    String status;
 }

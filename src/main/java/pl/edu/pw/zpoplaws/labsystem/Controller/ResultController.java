@@ -1,9 +1,8 @@
 package pl.edu.pw.zpoplaws.labsystem.Controller;
 
 import lombok.AllArgsConstructor;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -11,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.zpoplaws.labsystem.Config.UserAuthenticationProvider;
 import pl.edu.pw.zpoplaws.labsystem.Dto.ResultDto;
+import pl.edu.pw.zpoplaws.labsystem.Service.ManagementService;
 import pl.edu.pw.zpoplaws.labsystem.Service.ResultService;
 
 @RestController
@@ -18,12 +18,15 @@ import pl.edu.pw.zpoplaws.labsystem.Service.ResultService;
 @AllArgsConstructor
 public class ResultController {
 
-    ResultService resultService;
+    private final ResultService resultService;
+    private final ManagementService managementService;
     private final UserAuthenticationProvider userAuthProvider;
 
     @PostMapping()
-    public boolean addResult(@RequestBody String file) {
-        return resultService.saveToDatabase(file);
+    public ResponseEntity<ResultDto> addResult(@CookieValue(name="access_token") String token, String resultId, @RequestBody String xmlFile) {
+        var userId = new ObjectId(userAuthProvider.getID(token));
+        var body = managementService.uploadResult(new ObjectId(resultId), xmlFile, userId );
+        return  ResponseEntity.ok().body(body);
     }
 
     @GetMapping("/{id}")
@@ -32,10 +35,8 @@ public class ResultController {
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=myfile.pdf");
 
-        var body= resultService.getResult(id);
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(body);
+        var body= resultService.getResult(new ObjectId(id));
+        return ResponseEntity.ok().headers(headers).body(body);
     }
 
     @GetMapping("/list")

@@ -6,10 +6,12 @@ import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.zpoplaws.labsystem.Config.UserAuthenticationProvider;
+import pl.edu.pw.zpoplaws.labsystem.Dto.AppointmentDto;
 import pl.edu.pw.zpoplaws.labsystem.Dto.ExamOrderDto;
 import pl.edu.pw.zpoplaws.labsystem.Dto.LabPointDto;
 import pl.edu.pw.zpoplaws.labsystem.Model.LabPoint;
 import pl.edu.pw.zpoplaws.labsystem.Service.AppointmentService;
+import pl.edu.pw.zpoplaws.labsystem.Service.ManagementService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,26 +27,39 @@ public class AppointmentController {
 
     private final UserAuthenticationProvider userAuthProvider;
     private final AppointmentService appointmentService;
+    private final ManagementService managementService;
     private final DateTimeFormatter formatter;
 
     @GetMapping("/labs")
-    public ResponseEntity<List<LabPointDto>> getResult() {
+    public ResponseEntity<List<LabPointDto>> getLabs() {
         var labs = appointmentService.getAllLabPoints().stream().map(LabPoint::toDto).toList();
         return ResponseEntity.ok().body(labs);
     }
 
     @GetMapping("/available")
-    public ResponseEntity<Map<String, Set<String>>> getResult(String startDate, String endDate, String labPointId) {
+    public ResponseEntity<Map<String, Set<String>>> getAvailableAppointments(String startDate, String endDate, String labPointId) {
         var localStartDate = LocalDate.parse(startDate, formatter);
         var localCloseDate = LocalDate.parse(endDate, formatter);
         return ResponseEntity.ok().body(appointmentService.getAvailableAppointments(
                 localStartDate, localCloseDate, new ObjectId(labPointId)));
     }
 
-    @PutMapping
-    public ResponseEntity<ExamOrderDto> makeAppointment(@CookieValue(name="access_token") Cookie token, String examOfferId, String dateTime){
+    @PutMapping("/make")
+    public ResponseEntity<AppointmentDto> makeAppointment(@CookieValue(name = "access_token") String token,
+                                                          String examOfferId, String dateTime, String labPointId) {
         var localDateTime = LocalDateTime.parse(dateTime, formatter);
-        return ResponseEntity.ok().body(ExamOrderDto.builder().build());
+        var patient = new ObjectId(userAuthProvider.getID(token));
+        var examOffer = new ObjectId(examOfferId);
+        var lab = new ObjectId(labPointId);
+        var body = managementService.bookAppointment(patient, examOffer, lab, localDateTime);
+        return ResponseEntity.ok().body(body);
+    }
+
+    @PostMapping("/confirm")
+    public ResponseEntity<String> confirmAppointment(@CookieValue(name = "access_token") String token, String appointmentId) {
+        var employeeId = new ObjectId(userAuthProvider.getID(token));
+        var resultOrder = managementService.createResultOrder(employeeId, new ObjectId(appointmentId));
+        return ResponseEntity.ok().body(resultOrder.getId());
     }
 
 

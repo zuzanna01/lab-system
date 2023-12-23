@@ -7,6 +7,9 @@ import pl.edu.pw.zpoplaws.labsystem.Model.User;
 import java.util.Optional;
 
 public interface UserRepository extends MongoRepository<User, ObjectId> {
+
+    Optional<User> findById(ObjectId id);
+
     Optional<User> findByPESEL(String PESEL);
 
     Optional<User> findByEmail(String email);

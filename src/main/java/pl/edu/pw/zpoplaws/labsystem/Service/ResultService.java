@@ -1,28 +1,29 @@
 package pl.edu.pw.zpoplaws.labsystem.Service;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.w3c.dom.Document;
 import pl.edu.pw.zpoplaws.labsystem.Dto.ResultDto;
+import pl.edu.pw.zpoplaws.labsystem.Model.Appointment;
 import pl.edu.pw.zpoplaws.labsystem.Model.Result;
-
-import java.util.List;
+import pl.edu.pw.zpoplaws.labsystem.Model.User;
 
 public interface ResultService {
-    boolean saveToDatabase(String xml);
-
-    byte[] getResult(String id);
+    Result uploadResult(ObjectId resultId, String xml, User employee);
 
     boolean validateXmlFile(String xml);
 
-    String getXmlString(String id);
 
     byte[] convertToPdf(String html);
 
     String convertToHtml(String xml);
 
+    byte[] getResult(ObjectId id);
+
+    Result createResultOrder(Appointment appointment);
+
     Page<ResultDto> getAllResultsByUser(String patientId, Pageable pageable);
 
-    String getPeselFromXml(String xml) ;
+    Result findResultById(ObjectId objectId);
 
 }

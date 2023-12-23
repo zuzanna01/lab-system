@@ -14,6 +14,7 @@ import pl.edu.pw.zpoplaws.labsystem.Model.UserRole;
 import pl.edu.pw.zpoplaws.labsystem.Repository.UserRepository;
 
 import java.nio.CharBuffer;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -26,6 +27,12 @@ public class UserServiceImpl implements UserService {
     public User findById(String id) {
         return  userRepository.findById(new ObjectId(id)).orElseThrow(
                 () -> new AppException("Unknown user", HttpStatus.NOT_FOUND));
+    }
+
+    @Override
+    public User findById(ObjectId objectId) {
+        var optionalUser = userRepository.findById(objectId);
+        return optionalUser.orElseThrow(() -> new AppException("Unknown user", HttpStatus.NOT_FOUND));
     }
 
     @Override

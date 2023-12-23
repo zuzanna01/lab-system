@@ -21,4 +21,6 @@ public class ExamController {
     public ResponseEntity<Page<ExamOfferDto>> getResult(Pageable pageable) {
         return ResponseEntity.ok().body(examService.getExamOffersWithPagination(pageable));
     }
+
+
 }
