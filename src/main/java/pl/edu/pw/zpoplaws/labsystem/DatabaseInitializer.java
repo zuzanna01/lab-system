@@ -114,7 +114,7 @@ public class DatabaseInitializer implements CommandLineRunner {
         var labs =labPointRepository.findAll();
 
         for(LabPoint lab :labs) {
-            appointmentService.createAppointments(LocalDate.of(2023, 12,22), LocalDate.of(2023, 12,23), lab.getId());
+            appointmentService.createAppointments(LocalDate.of(2023, 12,24), LocalDate.of(2023, 12,25), lab.getId());
 
             //var timetable = appointmentService.getAvailableAppointments();
         }

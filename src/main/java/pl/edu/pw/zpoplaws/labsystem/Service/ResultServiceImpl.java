@@ -61,6 +61,81 @@ public class ResultServiceImpl implements ResultService {
         }
     }
 
+    @Override
+    public Result createResultOrder(Appointment appointment) {
+        var result = Result.createResultOrder(appointment);
+        return resultRepository.save(result);
+    }
+
+    @Override
+    public byte[] getResultPdf(ObjectId id) {
+        var result = this.findResultById(id);
+        var html = convertToHtml(result.getXmlFile());
+        return convertToPdf(html);
+    }
+
+    @Override
+    public boolean validateXmlFile(String xml) {
+        return true;
+    }
+
+    @Override
+    public byte[] convertToPdf(String html) {
+        Document document = Jsoup.parse(html);
+        document.outputSettings().syntax(Document.OutputSettings.Syntax.html);
+
+        byte[] pdf;
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.useFastMode();
+            builder.withW3cDocument(new W3CDom().fromJsoup(document), "/");
+            builder.useFont(new File(ResultServiceImpl.class.getClassLoader().getResource("font/SourceSans3-Regular.ttf").getFile()), "Noto sans");
+            builder.toStream(os);
+            builder.run();
+            pdf = os.toByteArray();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return pdf;
+    }
+
+    @Override
+    public String convertToHtml(String xml) {
+        try {
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer(new StreamSource(xsltFilePath));
+            StringWriter writer = new StringWriter();
+            transformer.transform(new StreamSource(new StringReader(xml)), new StreamResult(writer));
+            String htmlResult = writer.toString();
+            return htmlResult;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public Page<ResultDto> getAllReadyResultsByUser(ObjectId patientId, Pageable pageable) {
+        return resultRepository.findReadyResultsByPatient(patientId, pageable)
+                .map(resultMapper::toDto);
+    }
+
+    @Override
+    public Page<ResultDto> getAllWaitingResultsByUser(ObjectId patientId, Pageable pageable) {
+        return resultRepository.findWaitingResultsByPatient(patientId, pageable)
+                .map(resultMapper::toDto);
+    }
+
+    @Override
+    public Result findResultById(ObjectId objectId) {
+        var optionalResult = resultRepository.findById(objectId);
+        return optionalResult.orElseThrow(() -> new AppException("Unknown result order", HttpStatus.NOT_FOUND));
+    }
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+
     private String enrich(String xml) {
         String modifiedXml = xml.replaceAll("\\\\r\\\\n", "\n").replaceAll("\\\\\"", "\"");
         int indexOfNewLine = modifiedXml.indexOf("\n");
@@ -118,76 +193,5 @@ public class ResultServiceImpl implements ResultService {
             return null;
         }
     }
-
-    @Override
-    public Result createResultOrder(Appointment appointment) {
-        var result = Result.createResultOrder(appointment);
-        return resultRepository.save(result);
-    }
-
-    @Override
-    public byte[] getResult(ObjectId id) {
-        var result = this.findResultById(id);
-        var html = convertToHtml(result.getXmlFile());
-        return convertToPdf(html);
-    }
-
-    @Override
-    public boolean validateXmlFile(String xml) {
-        return true;
-    }
-
-    @Override
-    public byte[] convertToPdf(String html) {
-        Document document = Jsoup.parse(html);
-        document.outputSettings().syntax(Document.OutputSettings.Syntax.html);
-
-        byte[] pdf;
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            PdfRendererBuilder builder = new PdfRendererBuilder();
-            builder.useFastMode();
-            builder.withW3cDocument(new W3CDom().fromJsoup(document), "/");
-            builder.useFont(new File(ResultServiceImpl.class.getClassLoader().getResource("font/SourceSans3-Regular.ttf").getFile()), "Noto sans");
-            builder.toStream(os);
-            builder.run();
-            pdf = os.toByteArray();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return pdf;
-    }
-
-    @Override
-    public String convertToHtml(String xml) {
-        try {
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer(new StreamSource(xsltFilePath));
-            StringWriter writer = new StringWriter();
-            transformer.transform(new StreamSource(new StringReader(xml)), new StreamResult(writer));
-            String htmlResult = writer.toString();
-            return htmlResult;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @Override
-    public Page<ResultDto> getAllResultsByUser(String patientId, Pageable pageable) {
-        User user = userRepository.findById(new ObjectId(patientId)).get();
-        return resultRepository.findByPatientId(user.getPESEL(), pageable)
-                .map(resultMapper::toDto);
-    }
-
-    @Override
-    public Result findResultById(ObjectId objectId) {
-        var optionalResult = resultRepository.findById(objectId);
-        return optionalResult.orElseThrow(() -> new AppException("Unknown result order", HttpStatus.NOT_FOUND));
-    }
-
-    private final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
-
 }
 

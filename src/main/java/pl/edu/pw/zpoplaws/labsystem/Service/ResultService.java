@@ -18,11 +18,13 @@ public interface ResultService {
 
     String convertToHtml(String xml);
 
-    byte[] getResult(ObjectId id);
+    byte[] getResultPdf(ObjectId id);
 
     Result createResultOrder(Appointment appointment);
 
-    Page<ResultDto> getAllResultsByUser(String patientId, Pageable pageable);
+    Page<ResultDto> getAllReadyResultsByUser(ObjectId patientId, Pageable pageable);
+
+    Page<ResultDto> getAllWaitingResultsByUser(ObjectId patientId, Pageable pageable);
 
     Result findResultById(ObjectId objectId);
 

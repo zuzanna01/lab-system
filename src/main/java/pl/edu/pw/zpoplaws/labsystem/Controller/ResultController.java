@@ -34,18 +34,27 @@ public class ResultController {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=myfile.pdf");
-
-        var body= resultService.getResult(new ObjectId(id));
+        var body= resultService.getResultPdf(new ObjectId(id));
         return ResponseEntity.ok().headers(headers).body(body);
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<Page<ResultDto>> getResultsByPatient(@CookieValue(name="access_token") String authToken, Pageable pageable ) {
+    @GetMapping("/waiting")
+    public ResponseEntity<Page<ResultDto>> getWaitingResultsByPatient(@CookieValue(name="access_token") String authToken, Pageable pageable) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        var id = userAuthProvider.getID(authToken);
-        var list = resultService.getAllResultsByUser(id, pageable);
+        var patientId = new ObjectId(userAuthProvider.getID(authToken));
+        var list = resultService.getAllWaitingResultsByUser(patientId, pageable);
         return ResponseEntity.ok().headers(headers).body(list);
     }
+    @GetMapping("/list")
+    public ResponseEntity<Page<ResultDto>> getResultsByPatient(@CookieValue(name="access_token") String authToken, Pageable pageable) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        var patientId = new ObjectId(userAuthProvider.getID(authToken));
+        var list = resultService.getAllReadyResultsByUser(patientId, pageable);
+        return ResponseEntity.ok().headers(headers).body(list);
+    }
+
+
 
 }

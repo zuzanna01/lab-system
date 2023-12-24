@@ -29,13 +29,13 @@ public class AuthorizationController {
         OffsetDateTime odt = OffsetDateTime.now ();
         ZoneOffset zoneOffset = odt.getOffset ();
         var startValidity = now.toInstant(zoneOffset);
-        var accessValidity = now.plusMinutes(10).toInstant(zoneOffset);
-        var refreshValidity = now.plusMinutes(15).toInstant(zoneOffset);
+        var accessValidity = now.plusMinutes(60).toInstant(zoneOffset);
+        var refreshValidity = now.plusMinutes(70).toInstant(zoneOffset);
         var user = userService.login(credentials);
         var accessToken = userAuthProvider.createToken(user.getId(),startValidity,accessValidity);
         var refreshToken = userAuthProvider.createToken(user.getId(),startValidity,refreshValidity);
-        var accessCookie = userAuthProvider.createCookie("access_token", accessToken,10*60-5);
-        var refreshCookie = userAuthProvider.createCookie("refresh_token",refreshToken,15*60-5);
+        var accessCookie = userAuthProvider.createCookie("access_token", accessToken,60*60-5);
+        var refreshCookie = userAuthProvider.createCookie("refresh_token",refreshToken,70*60-5);
        // refreshCookie.setPath("/auth/refresh");
         servletResponse.addCookie(accessCookie);
        // servletResponse.addCookie(refreshCookie);

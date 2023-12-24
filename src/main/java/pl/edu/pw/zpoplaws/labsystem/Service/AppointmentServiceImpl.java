@@ -2,6 +2,8 @@ package pl.edu.pw.zpoplaws.labsystem.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.zpoplaws.labsystem.Exception.AppException;
@@ -109,6 +111,20 @@ public class AppointmentServiceImpl implements AppointmentService {
     public Appointment findAppointment(ObjectId objectId) {
         var optionalAppointment = appointmentRepository.findById(objectId);
         return optionalAppointment.orElseThrow(() -> new AppException("Unknown appointment", HttpStatus.NOT_FOUND));
+    }
+
+    @Override
+    public Page<Appointment> getTodayAppointmentsByLabPoint(ObjectId labPointId, Pageable pageable) {
+        var today = LocalDate.now();
+        var start = LocalDateTime.of(today,  LocalTime.of(0,0,1));
+        var end = LocalDateTime.of(today, LocalTime.of(23,59,59));
+        return appointmentRepository.findReservedAppointmentsByDateTimeAndLabPoint(labPointId, start, end, pageable);
+    }
+
+    @Override
+    public Page<Appointment> getFutureAppointmentsByPatient(ObjectId patientId, Pageable pageable) {
+        var now = LocalDateTime.now();
+        return appointmentRepository.findFutureReservedAppointmentsByPatient(patientId, now, pageable);
     }
 
 

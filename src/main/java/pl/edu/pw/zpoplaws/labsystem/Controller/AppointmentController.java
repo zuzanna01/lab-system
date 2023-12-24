@@ -3,12 +3,14 @@ package pl.edu.pw.zpoplaws.labsystem.Controller;
 import jakarta.servlet.http.Cookie;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.zpoplaws.labsystem.Config.UserAuthenticationProvider;
 import pl.edu.pw.zpoplaws.labsystem.Dto.AppointmentDto;
-import pl.edu.pw.zpoplaws.labsystem.Dto.ExamOrderDto;
 import pl.edu.pw.zpoplaws.labsystem.Dto.LabPointDto;
+import pl.edu.pw.zpoplaws.labsystem.Mapper.AppointmentMapper;
 import pl.edu.pw.zpoplaws.labsystem.Model.LabPoint;
 import pl.edu.pw.zpoplaws.labsystem.Service.AppointmentService;
 import pl.edu.pw.zpoplaws.labsystem.Service.ManagementService;
@@ -29,6 +31,8 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
     private final ManagementService managementService;
     private final DateTimeFormatter formatter;
+
+    private final AppointmentMapper appointmentMapper;
 
     @GetMapping("/labs")
     public ResponseEntity<List<LabPointDto>> getLabs() {
@@ -62,5 +66,17 @@ public class AppointmentController {
         return ResponseEntity.ok().body(resultOrder.getId());
     }
 
+    @GetMapping("/today")
+    public ResponseEntity<Page<AppointmentDto>> getTodayAppointments(String labPointId, Pageable pageable) {
+        var body = appointmentService.getTodayAppointmentsByLabPoint(new ObjectId(labPointId), pageable);
+        return ResponseEntity.ok().body(body.map(appointmentMapper::toDto));
+    }
+
+    @GetMapping("/future")
+    public ResponseEntity<Page<AppointmentDto>> getFutureAppointmentsForPatient(@CookieValue(name = "access_token") String token, Pageable pageable) {
+        var patientId = new ObjectId(userAuthProvider.getID(token));
+        var body = appointmentService.getFutureAppointmentsByPatient(patientId, pageable);
+        return ResponseEntity.ok().body(body.map(appointmentMapper::toDto));
+    }
 
 }
