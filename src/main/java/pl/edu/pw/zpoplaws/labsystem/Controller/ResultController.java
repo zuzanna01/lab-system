@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.zpoplaws.labsystem.Config.UserAuthenticationProvider;
 import pl.edu.pw.zpoplaws.labsystem.Dto.ResultDto;
+import pl.edu.pw.zpoplaws.labsystem.Dto.ResultPatientInfo;
 import pl.edu.pw.zpoplaws.labsystem.Service.ManagementService;
 import pl.edu.pw.zpoplaws.labsystem.Service.ResultService;
 
@@ -23,14 +24,16 @@ public class ResultController {
     private final UserAuthenticationProvider userAuthProvider;
 
     @PostMapping()
-    public ResponseEntity<ResultDto> addResult(@CookieValue(name="access_token") String token, String resultId, @RequestBody String xmlFile) {
+    public ResponseEntity<ResultDto> addResult( @CookieValue(name = "access_token") String token,
+                                                @RequestParam("resultId") String resultId,
+                                                @RequestBody String xmlFile) {
         var userId = new ObjectId(userAuthProvider.getID(token));
         var body = managementService.uploadResult(new ObjectId(resultId), xmlFile, userId );
         return  ResponseEntity.ok().body(body);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<byte[]> getResult(@PathVariable String id) {
+    public ResponseEntity<byte[]> getResultPdf(@PathVariable String id) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=myfile.pdf");
@@ -38,22 +41,19 @@ public class ResultController {
         return ResponseEntity.ok().headers(headers).body(body);
     }
 
-    @GetMapping("/waiting")
-    public ResponseEntity<Page<ResultDto>> getWaitingResultsByPatient(@CookieValue(name="access_token") String authToken, Pageable pageable) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        var patientId = new ObjectId(userAuthProvider.getID(authToken));
-        var list = resultService.getAllWaitingResultsByUser(patientId, pageable);
-        return ResponseEntity.ok().headers(headers).body(list);
+    @GetMapping("/orders")
+    public ResponseEntity<Page<ResultDto>> getWaitingResultsByLab(String labId, Pageable pageable) {
+        var body = resultService.getAllWaitingResultsByLab( new ObjectId(labId), pageable);
+        return  ResponseEntity.ok(body);
     }
-    @GetMapping("/list")
-    public ResponseEntity<Page<ResultDto>> getResultsByPatient(@CookieValue(name="access_token") String authToken, Pageable pageable) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+
+    @GetMapping("/user")
+    public ResponseEntity<Page<ResultPatientInfo>> getResultsByPatient(@CookieValue(name="access_token") String authToken, Pageable pageable) {
         var patientId = new ObjectId(userAuthProvider.getID(authToken));
-        var list = resultService.getAllReadyResultsByUser(patientId, pageable);
-        return ResponseEntity.ok().headers(headers).body(list);
+        var body = resultService.getResultsByPatient(patientId, pageable);
+        return ResponseEntity.ok(body);
     }
+
 
 
 

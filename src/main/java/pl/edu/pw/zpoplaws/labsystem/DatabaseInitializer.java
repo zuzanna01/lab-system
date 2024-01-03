@@ -111,10 +111,10 @@ public class DatabaseInitializer implements CommandLineRunner {
         labPointRepository.save(lab1);
         labPointRepository.save(lab2);
 */
-        var labs =labPointRepository.findAll();
+        var labs = labPointRepository.findAll();
 
         for(LabPoint lab :labs) {
-            appointmentService.createAppointments(LocalDate.of(2023, 12,24), LocalDate.of(2023, 12,25), lab.getId());
+//            appointmentService.createAppointments(LocalDate.of(2023, 12,24), LocalDate.of(2023, 12,29), lab.getId());
 
             //var timetable = appointmentService.getAvailableAppointments();
         }

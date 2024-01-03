@@ -7,6 +7,8 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Optional;
+
 @Builder
 @Data
 @AllArgsConstructor
@@ -24,6 +26,9 @@ public class User {
     Boolean isActive;
 
     public String getUserName() {
-        return this.getName() + " " + this.getLastname();
+        String firstName = Optional.ofNullable(getName()).orElse("");
+        String lastName = Optional.ofNullable(getLastname()).orElse("");
+
+        return (firstName + " " + lastName).trim();
     }
 }

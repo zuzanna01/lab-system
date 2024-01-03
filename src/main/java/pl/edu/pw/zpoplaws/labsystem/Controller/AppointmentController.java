@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.zpoplaws.labsystem.Config.UserAuthenticationProvider;
 import pl.edu.pw.zpoplaws.labsystem.Dto.AppointmentDto;
+import pl.edu.pw.zpoplaws.labsystem.Dto.AppointmentRequest;
 import pl.edu.pw.zpoplaws.labsystem.Dto.LabPointDto;
 import pl.edu.pw.zpoplaws.labsystem.Mapper.AppointmentMapper;
 import pl.edu.pw.zpoplaws.labsystem.Model.LabPoint;
@@ -60,15 +61,21 @@ public class AppointmentController {
     }
 
     @PostMapping("/confirm")
-    public ResponseEntity<String> confirmAppointment(@CookieValue(name = "access_token") String token, String appointmentId) {
-        var employeeId = new ObjectId(userAuthProvider.getID(token));
-        var resultOrder = managementService.createResultOrder(employeeId, new ObjectId(appointmentId));
+    public ResponseEntity<String> confirmAppointment(@CookieValue(name="access_token") String authToken, String appointmentId) {
+        var employeeId = new ObjectId(userAuthProvider.getID(authToken));
+        var resultOrder = managementService.createResultOrder(new ObjectId(appointmentId), employeeId);
         return ResponseEntity.ok().body(resultOrder.getId());
     }
 
+    @PutMapping("/cancel")
+    public ResponseEntity<Boolean> cancelAppointment(String appointmentId) {
+        var body = appointmentService.cancelAppointment(new ObjectId(appointmentId));
+        return ResponseEntity.ok(body);
+    }
+
     @GetMapping("/today")
-    public ResponseEntity<Page<AppointmentDto>> getTodayAppointments(String labPointId, Pageable pageable) {
-        var body = appointmentService.getTodayAppointmentsByLabPoint(new ObjectId(labPointId), pageable);
+    public ResponseEntity<Page<AppointmentDto>> getTodayAppointments(String labId, Pageable pageable) {
+        var body = appointmentService.getTodayAppointmentsByLabPoint(new ObjectId(labId), pageable);
         return ResponseEntity.ok().body(body.map(appointmentMapper::toDto));
     }
 
@@ -78,5 +85,18 @@ public class AppointmentController {
         var body = appointmentService.getFutureAppointmentsByPatient(patientId, pageable);
         return ResponseEntity.ok().body(body.map(appointmentMapper::toDto));
     }
+
+    @PostMapping("/create")
+    public ResponseEntity createAppointments(@RequestBody AppointmentRequest request) {
+        var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        var start = LocalDate.parse(request.getStartDate(), formatter);
+        var end = LocalDate.parse(request.getEndDate(), formatter);
+        for (String labId : request.getLabs()) {
+            appointmentService.createAppointments(start, end, new ObjectId(labId));
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
 
 }

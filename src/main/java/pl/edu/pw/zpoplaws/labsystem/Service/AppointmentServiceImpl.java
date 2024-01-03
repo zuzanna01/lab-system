@@ -47,6 +47,45 @@ public class AppointmentServiceImpl implements AppointmentService {
         return !appointmentRepository.saveAll(appointments).isEmpty();
     }
 
+    @Override
+    public boolean cancelAppointment(ObjectId appointmentId) {
+        Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
+
+        if (appointmentOptional.isPresent()) {
+            var appointment = appointmentOptional.get();
+
+            try {
+                appointment.cancel();
+                appointmentRepository.save(appointment);
+                return true;
+            } catch (Exception e) {
+                // Log if needed: LOGGER.error("Failed to save cancelled appointment: {}", e.getMessage());
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean completeAppointment(ObjectId appointmentId) {
+        Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
+
+        if (appointmentOptional.isPresent()) {
+            var appointment = appointmentOptional.get();
+
+            try {
+                appointment.complete();
+                appointmentRepository.save(appointment);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
     private List<Appointment> generateAppointmentsForDay(LocalTime startTime, LocalTime endTime, LabPoint labPoint, LocalDate day) {
         List<Appointment> appointments = new ArrayList<>();
         LocalTime currentTime = startTime;
@@ -70,7 +109,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public Map<String, Set<String>> getAvailableAppointments(LocalDate startDate, LocalDate endDate, ObjectId labPointId) {
         Map<String, Set<String>> timeTable = new TreeMap<>();
-        LocalDateTime start = LocalDateTime.of(startDate, LocalTime.of(0, 0, 1));
+        LocalDateTime start = LocalDateTime.of(startDate, LocalTime.now());
         LocalDateTime end = LocalDateTime.of(endDate, LocalTime.of(23, 59, 59));
         var availableAppointments = appointmentRepository.
                 findAvailableAppointmentsByLabPointAndDateTimeBetween(labPointId, start, end);
@@ -102,7 +141,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public Appointment findAppointment(ObjectId LabPointId, LocalDateTime localDateTime) {
+    public Appointment findAvailableAppointment(ObjectId LabPointId, LocalDateTime localDateTime) {
         return appointmentRepository.findAvailableAppointmentsByDateTimeAndLabPoint(LabPointId, localDateTime).
                 stream().findFirst().orElseThrow(() -> new AppException("No available appointment found", HttpStatus.NOT_FOUND));
     }
@@ -116,8 +155,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public Page<Appointment> getTodayAppointmentsByLabPoint(ObjectId labPointId, Pageable pageable) {
         var today = LocalDate.now();
-        var start = LocalDateTime.of(today,  LocalTime.of(0,0,1));
-        var end = LocalDateTime.of(today, LocalTime.of(23,59,59));
+        var start = LocalDateTime.of(today, LocalTime.of(0, 0, 1));
+        var end = LocalDateTime.of(today, LocalTime.of(23, 59, 59));
         return appointmentRepository.findReservedAppointmentsByDateTimeAndLabPoint(labPointId, start, end, pageable);
     }
 

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.zpoplaws.labsystem.Config.UserAuthenticationProvider;
 import pl.edu.pw.zpoplaws.labsystem.Dto.CredentialsDto;
 import pl.edu.pw.zpoplaws.labsystem.Dto.SignUpDto;
+import pl.edu.pw.zpoplaws.labsystem.Dto.UserDetailsResponse;
 import pl.edu.pw.zpoplaws.labsystem.Service.UserService;
 
 import java.io.IOException;
@@ -36,14 +37,16 @@ public class AuthorizationController {
         var refreshToken = userAuthProvider.createToken(user.getId(),startValidity,refreshValidity);
         var accessCookie = userAuthProvider.createCookie("access_token", accessToken,60*60-5);
         var refreshCookie = userAuthProvider.createCookie("refresh_token",refreshToken,70*60-5);
-       // refreshCookie.setPath("/auth/refresh");
+        refreshCookie.setPath("/auth/refresh");
         servletResponse.addCookie(accessCookie);
-       // servletResponse.addCookie(refreshCookie);
+        servletResponse.addCookie(refreshCookie);
 
+        var response = UserDetailsResponse.builder().
+                userName(user.getName() + " " + user.getLastname()).userRole(user.getRole()).build();
         servletResponse.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            String userJson = objectMapper.writeValueAsString(user);
+            String userJson = objectMapper.writeValueAsString(response);
             servletResponse.setStatus(HttpServletResponse.SC_OK);
             servletResponse.getWriter().write(userJson);
         } catch (IOException e) {

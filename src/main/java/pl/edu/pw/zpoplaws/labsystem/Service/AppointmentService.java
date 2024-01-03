@@ -18,6 +18,10 @@ public interface AppointmentService {
 
     boolean createAppointments(LocalDate startDate, LocalDate endDate, ObjectId labPointId);
 
+    boolean cancelAppointment(ObjectId appointmentId);
+
+    boolean completeAppointment(ObjectId appointmentId);
+
     Map<String, Set<String>> getAvailableAppointments(LocalDate startDate, LocalDate endDate, ObjectId labPointId);
 
     List<LabPoint> getAllLabPoints();
@@ -27,7 +31,7 @@ public interface AppointmentService {
 
     Appointment makeAppointment(ObjectId patientId, ObjectId examId, ObjectId labPoint, LocalDateTime localDateTime);
 
-    Appointment findAppointment( ObjectId LabPointId, LocalDateTime localDateTime);
+    Appointment findAvailableAppointment( ObjectId LabPointId, LocalDateTime localDateTime);
 
     Appointment findAppointment(ObjectId objectId);
 

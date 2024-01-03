@@ -5,6 +5,7 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.zpoplaws.labsystem.Dto.AppointmentDto;
 import pl.edu.pw.zpoplaws.labsystem.Dto.ResultDto;
+import pl.edu.pw.zpoplaws.labsystem.Exception.AppException;
 import pl.edu.pw.zpoplaws.labsystem.Mapper.AppointmentMapper;
 import pl.edu.pw.zpoplaws.labsystem.Mapper.ResultMapper;
 
@@ -25,17 +26,18 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     public AppointmentDto bookAppointment(ObjectId patientId, ObjectId examId, ObjectId labPoint, LocalDateTime localDateTime) {
         var patient = userService.findById(patientId);
-        var appointment = appointmentService.findAppointment(labPoint, localDateTime);
+        var appointment = appointmentService.findAvailableAppointment(labPoint, localDateTime);
         var exam = examService.findExamOfferById(examId);
         var updatedAppointment = appointmentService.makeAppointment(appointment,patient,exam);
         return appointmentMapper.toDto(updatedAppointment);
     }
 
     @Override
-    public ResultDto createResultOrder(ObjectId employeeId, ObjectId appointmentId) {
-        var employee = userService.findById(employeeId);
+    public ResultDto createResultOrder(ObjectId appointmentId, ObjectId employeeId) {
         var appointment = appointmentService.findAppointment(appointmentId);
-        var result = resultService.createResultOrder(appointment);
+        appointmentService.completeAppointment(appointmentId);
+        var employee = userService.findById(employeeId);
+        var result = resultService.createResultOrder(appointment, employee);
         return resultMapper.toDto(result);
     }
 

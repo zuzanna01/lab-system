@@ -13,10 +13,10 @@ public interface ResultRepository extends MongoRepository<Result, ObjectId> {
     Optional<Result> findById(ObjectId id);
     Page<Result> findByPatientId(ObjectId patientId, Pageable pageable);
 
-    @Query("{'patient': ?0, 'status': 'READY'}")
-    Page<Result> findReadyResultsByPatient(ObjectId patient, Pageable pageable);
+    @Query("{'patient': ?0}")
+    Page<Result> findResultsByPatient(ObjectId patient, Pageable pageable);
 
-    @Query("{'patient': ?0, 'status': 'READY'}")
-    Page<Result> findWaitingResultsByPatient(ObjectId patient, Pageable pageable);
+    @Query("{'labPoint': ?0, 'status': 'WAITING'}")
+    Page<Result> findWaitingResultsByLab(ObjectId labId, Pageable pageable);
 
 }

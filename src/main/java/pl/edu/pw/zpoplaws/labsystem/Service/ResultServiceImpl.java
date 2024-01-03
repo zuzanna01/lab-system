@@ -8,7 +8,9 @@ import org.jsoup.nodes.Document;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Element;
@@ -16,6 +18,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import pl.edu.pw.zpoplaws.labsystem.Dto.ResultDto;
+import pl.edu.pw.zpoplaws.labsystem.Dto.ResultPatientInfo;
 import pl.edu.pw.zpoplaws.labsystem.Exception.AppException;
 import pl.edu.pw.zpoplaws.labsystem.Mapper.ResultMapper;
 import pl.edu.pw.zpoplaws.labsystem.Model.Appointment;
@@ -39,8 +42,6 @@ import java.time.format.DateTimeFormatter;
 public class ResultServiceImpl implements ResultService {
 
     private final ResultRepository resultRepository;
-    private final UserRepository userRepository;
-
     private final ResultMapper resultMapper;
 
     String xsltFilePath = "C:\\Users\\User\\Desktop\\lab-system\\src\\main\\resources\\Transformaty_XSLT_CDA_PL_IG_1.3.1.2\\CDA_PL_IG_1.3.1.xsl";
@@ -51,9 +52,8 @@ public class ResultServiceImpl implements ResultService {
     @Override
     public Result uploadResult(ObjectId resultId, String xml, User employee) {
         var resultOrder = this.findResultById(resultId);
-        String fullxml = enrich(xml);
+        String fullxml = this.enrich(xml);
         if (validateXmlFile(xml) ) {
-            var pesel = getPeselFromXml(fullxml);
             resultOrder.uploadResult(fullxml, employee);
             return resultRepository.save(resultOrder);
         } else {
@@ -62,15 +62,15 @@ public class ResultServiceImpl implements ResultService {
     }
 
     @Override
-    public Result createResultOrder(Appointment appointment) {
-        var result = Result.createResultOrder(appointment);
+    public Result createResultOrder(Appointment appointment, User employee) {
+        var result = Result.createResultOrder(appointment,employee);
         return resultRepository.save(result);
     }
 
     @Override
     public byte[] getResultPdf(ObjectId id) {
         var result = this.findResultById(id);
-        var html = convertToHtml(result.getXmlFile());
+        var html = this.convertToHtml(result.getXmlFile());
         return convertToPdf(html);
     }
 
@@ -117,15 +117,16 @@ public class ResultServiceImpl implements ResultService {
     }
 
     @Override
-    public Page<ResultDto> getAllReadyResultsByUser(ObjectId patientId, Pageable pageable) {
-        return resultRepository.findReadyResultsByPatient(patientId, pageable)
-                .map(resultMapper::toDto);
+    public Page<ResultPatientInfo> getResultsByPatient(ObjectId patientId, Pageable pageable) {
+        return resultRepository.findResultsByPatient(patientId, pageable)
+                .map(resultMapper::toPatientInfo);
     }
 
     @Override
-    public Page<ResultDto> getAllWaitingResultsByUser(ObjectId patientId, Pageable pageable) {
-        return resultRepository.findWaitingResultsByPatient(patientId, pageable)
-                .map(resultMapper::toDto);
+    public Page<ResultDto> getAllWaitingResultsByLab(ObjectId labId, Pageable pageable) {
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                Sort.by(Sort.Direction.ASC, "creationTime"));
+        return resultRepository.findWaitingResultsByLab(labId, sortedPageable).map(resultMapper::toDto);
     }
 
     @Override
@@ -140,7 +141,7 @@ public class ResultServiceImpl implements ResultService {
         String modifiedXml = xml.replaceAll("\\\\r\\\\n", "\n").replaceAll("\\\\\"", "\"");
         int indexOfNewLine = modifiedXml.indexOf("\n");
         if (indexOfNewLine != -1) {
-            String stringWithoutFirstLine = modifiedXml.substring(indexOfNewLine + 1, modifiedXml.length() - 2);
+            String stringWithoutFirstLine = modifiedXml.substring(indexOfNewLine + 1);
             return enrichment + stringWithoutFirstLine;
         } else {
             System.out.println("No newline character found in the string.");

@@ -10,7 +10,7 @@ public interface ManagementService {
 
     AppointmentDto bookAppointment(ObjectId patientId, ObjectId examId, ObjectId labPoint, LocalDateTime localDateTime);
 
-    ResultDto createResultOrder(ObjectId employeeId, ObjectId appointmentId);
+    ResultDto createResultOrder(ObjectId appointmentId, ObjectId employeeId);
 
     ResultDto uploadResult(ObjectId resultId, String xmlFile, ObjectId employeeId);
 
