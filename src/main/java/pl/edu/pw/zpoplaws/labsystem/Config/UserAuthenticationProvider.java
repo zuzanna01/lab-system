@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import pl.edu.pw.zpoplaws.labsystem.Model.User;
 import pl.edu.pw.zpoplaws.labsystem.Service.UserService;
@@ -20,6 +23,7 @@ import pl.edu.pw.zpoplaws.labsystem.Service.UserService;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Component
@@ -49,7 +53,13 @@ public class UserAuthenticationProvider {
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decoded = verifier.verify(token);
         User user = userService.findById(decoded.getSubject());
-        return new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
+        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().toString()));
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword(),
+                authorities
+        );
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
     public String getID(String token) {
@@ -67,4 +77,6 @@ public class UserAuthenticationProvider {
         cookie.setMaxAge(age);
         return cookie;
     }
+
+
 }

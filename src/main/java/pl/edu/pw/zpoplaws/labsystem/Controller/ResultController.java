@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.zpoplaws.labsystem.Config.UserAuthenticationProvider;
 import pl.edu.pw.zpoplaws.labsystem.Dto.ResultDto;
@@ -24,6 +25,7 @@ public class ResultController {
     private final UserAuthenticationProvider userAuthProvider;
 
     @PostMapping()
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<ResultDto> addResult( @CookieValue(name = "access_token") String token,
                                                 @RequestParam("resultId") String resultId,
                                                 @RequestBody String xmlFile) {
@@ -33,6 +35,7 @@ public class ResultController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_PATIENT')")
     public ResponseEntity<byte[]> getResultPdf(@PathVariable String id) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
