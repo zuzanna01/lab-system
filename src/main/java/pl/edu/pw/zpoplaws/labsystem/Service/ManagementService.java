@@ -14,4 +14,5 @@ public interface ManagementService {
 
     ResultDto uploadResult(ObjectId resultId, String xmlFile, ObjectId employeeId);
 
+    AppointmentDto cancelAppointment(ObjectId userId, ObjectId objectId);
 }

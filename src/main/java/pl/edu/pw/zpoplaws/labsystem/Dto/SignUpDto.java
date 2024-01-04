@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class SignUpDto {
-    String PESEL;
+    String pesel;
     String password;
     String name;
     String lastname;

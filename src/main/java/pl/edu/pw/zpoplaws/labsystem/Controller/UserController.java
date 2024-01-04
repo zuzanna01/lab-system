@@ -1,11 +1,16 @@
 package pl.edu.pw.zpoplaws.labsystem.Controller;
 
 import lombok.AllArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.zpoplaws.labsystem.Config.UserAuthenticationProvider;
+import pl.edu.pw.zpoplaws.labsystem.Dto.UserDto;
 import pl.edu.pw.zpoplaws.labsystem.Model.User;
 import pl.edu.pw.zpoplaws.labsystem.Service.UserService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -22,11 +27,23 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/name")
-    public ResponseEntity<String> getName(@RequestHeader("Authorization") String authToken) {
-        String id = userAuthProvider.getID(authToken.substring(7));
-        var user = userService.findById(id);
-        return ResponseEntity.ok(user.getName()+" "+user.getLastname());
+    @PutMapping("/inactivate/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<UserDto> inactivateAccount(@PathVariable String id) {
+        var body = userService.inactivateUser(new ObjectId(id));
+        return ResponseEntity.ok(body);
     }
+
+    @GetMapping("/{pesel}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<UserDto>> findAccounts(@PathVariable String pesel) {
+        var body = userService.getAccountsByPesel(pesel);
+        return ResponseEntity.ok(body);
+    }
+
+
+
+
+
 
 }

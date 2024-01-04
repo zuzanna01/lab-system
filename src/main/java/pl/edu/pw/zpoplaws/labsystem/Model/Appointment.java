@@ -45,9 +45,13 @@ public class Appointment {
     }
 
     public void cancel() {
+        this.status =Status.CANCELLED;
+    }
+
+    public void makeAvailable(){
         this.examOffer = null;
         this.patient = null;
-        this.status =Status.AVAILABLE;
+        this.status = Status.AVAILABLE;
     }
 
     public void complete() {

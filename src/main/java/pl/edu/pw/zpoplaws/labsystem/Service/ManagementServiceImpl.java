@@ -2,12 +2,14 @@ package pl.edu.pw.zpoplaws.labsystem.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import pl.edu.pw.zpoplaws.labsystem.Dto.AppointmentDto;
 import pl.edu.pw.zpoplaws.labsystem.Dto.ResultDto;
 import pl.edu.pw.zpoplaws.labsystem.Exception.AppException;
 import pl.edu.pw.zpoplaws.labsystem.Mapper.AppointmentMapper;
 import pl.edu.pw.zpoplaws.labsystem.Mapper.ResultMapper;
+import pl.edu.pw.zpoplaws.labsystem.Model.UserRole;
 
 import java.time.LocalDateTime;
 
@@ -46,5 +48,15 @@ public class ManagementServiceImpl implements ManagementService {
         var user = userService.findById(employeeId);
         var result = resultService.uploadResult(resultId, xmlFile, user);
         return resultMapper.toDto(result);
+    }
+
+    @Override
+    public AppointmentDto cancelAppointment(ObjectId userId, ObjectId appointmentId) {
+        var user = userService.findById(userId);
+        var appointment =  appointmentService.findAppointment(appointmentId);
+        if(user.getUserRole() == UserRole.ROLE_PATIENT && !appointment.getPatient().equals(user)){
+           throw new AppException("It is not yout appointment", HttpStatus.UNAUTHORIZED );
+        }
+        return appointmentService.cancelAppointment(appointment);
     }
 }

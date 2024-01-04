@@ -13,5 +13,6 @@ public class UserDto {
     String e_mail;
     String phoneNumber;
     String role;
+    boolean isActive;
 
 }

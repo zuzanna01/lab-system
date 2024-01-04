@@ -6,7 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import pl.edu.pw.zpoplaws.labsystem.Dto.AppointmentDto;
 import pl.edu.pw.zpoplaws.labsystem.Exception.AppException;
+import pl.edu.pw.zpoplaws.labsystem.Mapper.AppointmentMapper;
 import pl.edu.pw.zpoplaws.labsystem.Model.Appointment;
 import pl.edu.pw.zpoplaws.labsystem.Model.ExamOffer;
 import pl.edu.pw.zpoplaws.labsystem.Model.LabPoint;
@@ -25,6 +27,7 @@ import java.util.*;
 public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
+    private final AppointmentMapper appointmentMapper;
     private final LabPointRepository labPointRepository;
 
     private static final int parallelAppointments = 2;
@@ -48,23 +51,15 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public boolean cancelAppointment(ObjectId appointmentId) {
-        Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
-
-        if (appointmentOptional.isPresent()) {
-            var appointment = appointmentOptional.get();
-
-            try {
-                appointment.cancel();
-                appointmentRepository.save(appointment);
-                return true;
-            } catch (Exception e) {
-                // Log if needed: LOGGER.error("Failed to save cancelled appointment: {}", e.getMessage());
-                return false;
-            }
+    public AppointmentDto cancelAppointment(Appointment appointment) {
+        var now =LocalDateTime.now().minusMinutes(5);
+        if(appointment.getDateTime().isBefore(now)){
+            appointment.cancel();
         } else {
-            return false;
+            appointment.makeAvailable();
         }
+        var a =appointmentRepository.save(appointment);
+        return appointmentMapper.toDto(a);
     }
 
     @Override

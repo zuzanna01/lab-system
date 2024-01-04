@@ -45,12 +45,14 @@ public class ResultController {
     }
 
     @GetMapping("/orders")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<Page<ResultDto>> getWaitingResultsByLab(String labId, Pageable pageable) {
         var body = resultService.getAllWaitingResultsByLab( new ObjectId(labId), pageable);
         return  ResponseEntity.ok(body);
     }
 
     @GetMapping("/user")
+    @PreAuthorize("hasRole('ROLE_PATIENT')")
     public ResponseEntity<Page<ResultPatientInfo>> getResultsByPatient(@CookieValue(name="access_token") String authToken, Pageable pageable) {
         var patientId = new ObjectId(userAuthProvider.getID(authToken));
         var body = resultService.getResultsByPatient(patientId, pageable);

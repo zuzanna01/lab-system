@@ -5,11 +5,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.zpoplaws.labsystem.Config.UserAuthenticationProvider;
 import pl.edu.pw.zpoplaws.labsystem.Dto.CredentialsDto;
 import pl.edu.pw.zpoplaws.labsystem.Dto.SignUpDto;
 import pl.edu.pw.zpoplaws.labsystem.Dto.UserDetailsResponse;
+import pl.edu.pw.zpoplaws.labsystem.Dto.UserDto;
+import pl.edu.pw.zpoplaws.labsystem.Model.UserRole;
 import pl.edu.pw.zpoplaws.labsystem.Service.UserService;
 
 import java.io.IOException;
@@ -55,9 +59,17 @@ public class AuthorizationController {
         }
     }
 
-    @PostMapping("/register")
-    public void register(@RequestBody SignUpDto signUpDto) {
+    @PostMapping("/register/patient")
+    public ResponseEntity<UserDto> register(@RequestBody SignUpDto signUpDto) {
+        var user =  userService.register(signUpDto, UserRole.ROLE_PATIENT);
+        return ResponseEntity.ok(user);
+    }
 
+    @PostMapping("register/employee")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<UserDto>registerEmployee(@RequestBody SignUpDto signUpDto) {
+        var user =  userService.register(signUpDto, UserRole.ROLE_EMPLOYEE);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/refresh")

@@ -3,6 +3,7 @@ package pl.edu.pw.zpoplaws.labsystem.Service;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import pl.edu.pw.zpoplaws.labsystem.Dto.AppointmentDto;
 import pl.edu.pw.zpoplaws.labsystem.Model.Appointment;
 import pl.edu.pw.zpoplaws.labsystem.Model.ExamOffer;
 import pl.edu.pw.zpoplaws.labsystem.Model.LabPoint;
@@ -18,7 +19,7 @@ public interface AppointmentService {
 
     boolean createAppointments(LocalDate startDate, LocalDate endDate, ObjectId labPointId);
 
-    boolean cancelAppointment(ObjectId appointmentId);
+    AppointmentDto cancelAppointment(Appointment appointment);
 
     boolean completeAppointment(ObjectId appointmentId);
 

@@ -70,10 +70,10 @@ public class AppointmentController {
         return ResponseEntity.ok().body(resultOrder.getId());
     }
 
-    @PutMapping("/cancel")
-    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
-    public ResponseEntity<Boolean> cancelAppointment(String appointmentId) {
-        var body = appointmentService.cancelAppointment(new ObjectId(appointmentId));
+    @PutMapping("/cancel/{appointmentId}")
+    public ResponseEntity<AppointmentDto> cancelAppointment(@CookieValue(name="access_token") String authToken, @PathVariable String appointmentId) {
+        var userId = new ObjectId(userAuthProvider.getID(authToken));
+        var body = managementService.cancelAppointment(userId, new ObjectId(appointmentId));
         return ResponseEntity.ok(body);
     }
 
@@ -93,7 +93,7 @@ public class AppointmentController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ROLE_PATIENT')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity createAppointments(@RequestBody AppointmentRequest request) {
         var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         var start = LocalDate.parse(request.getStartDate(), formatter);
