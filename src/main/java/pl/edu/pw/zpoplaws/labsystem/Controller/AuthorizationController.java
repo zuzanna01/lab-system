@@ -3,6 +3,7 @@ package pl.edu.pw.zpoplaws.labsystem.Controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ import java.io.IOException;
 import java.time.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @AllArgsConstructor
 public class AuthorizationController {
 
@@ -29,10 +30,8 @@ public class AuthorizationController {
 
     @PostMapping("/login")
     public void login(@RequestBody CredentialsDto credentials, HttpServletResponse servletResponse) {
-
         var now = LocalDateTime.now();
-        OffsetDateTime odt = OffsetDateTime.now ();
-        ZoneOffset zoneOffset = odt.getOffset ();
+        ZoneOffset zoneOffset = OffsetDateTime.now().getOffset ();
         var startValidity = now.toInstant(zoneOffset);
         var accessValidity = now.plusMinutes(60).toInstant(zoneOffset);
         var refreshValidity = now.plusMinutes(70).toInstant(zoneOffset);
@@ -45,9 +44,14 @@ public class AuthorizationController {
         servletResponse.addCookie(accessCookie);
         servletResponse.addCookie(refreshCookie);
 
-        var response = UserDetailsResponse.builder().
-                userName(user.getName() + " " + user.getLastname()).userRole(user.getRole()).build();
+        var response = UserDetailsResponse
+                .builder()
+                .userName(user.getName() + " " + user.getLastname())
+                .userRole(user.getRole())
+                .build();
+
         servletResponse.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String userJson = objectMapper.writeValueAsString(response);
@@ -85,7 +89,22 @@ public class AuthorizationController {
         var refreshToken = userAuthProvider.createToken(id,startValidity,refreshValidity);
         var accessCookie = userAuthProvider.createCookie("access_token", accessToken,3*60-5);
         var refreshCookie = userAuthProvider.createCookie("refresh_token",refreshToken,5*60-5);
-        //refreshCookie.setPath("/auth/refresh");
+        servletResponse.addCookie(accessCookie);
+        servletResponse.addCookie(refreshCookie);
+    }
+
+    @PostMapping("/logout")
+    public void logout(@CookieValue(name="access_token") String token, HttpServletResponse servletResponse){
+        ZoneOffset zoneOffset = OffsetDateTime.now().getOffset ();
+        var now = LocalDateTime.now();
+        var startValidity = now.toInstant(zoneOffset);
+        var endAccessValidity = now.minusDays(1).toInstant(zoneOffset);
+        var endRefreshValidity = now.minusDays(1).toInstant(zoneOffset);
+        var id = userAuthProvider.getID(token);
+        var accessToken = userAuthProvider.createToken(id,startValidity,endAccessValidity);
+        var refreshToken = userAuthProvider.createToken(id,startValidity,endRefreshValidity);
+        var accessCookie = userAuthProvider.createCookie("access_token", accessToken,1);
+        var refreshCookie = userAuthProvider.createCookie("refresh_token",refreshToken,1);
         servletResponse.addCookie(accessCookie);
         servletResponse.addCookie(refreshCookie);
     }

@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/appointment")
+@RequestMapping("api/appointment")
 @AllArgsConstructor
 public class AppointmentController {
 

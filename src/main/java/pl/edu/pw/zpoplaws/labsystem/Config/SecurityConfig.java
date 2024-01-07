@@ -24,18 +24,26 @@ public class SecurityConfig {
     private final UserAuthenticationEntryPoint userAuthenticationEntryPoint;
     private final UserAuthenticationProvider userAuthenticationProvider;
 
+    private static final String[] AUTH_WHITE_LIST = {
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/v2/api-docs/**",
+            "/swagger-resources/**"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .exceptionHandling(exception ->exception.authenticationEntryPoint(userAuthenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/exam/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/appointment/labs").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/appointment/available").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/result/{id}").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/result").permitAll()
+                        .requestMatchers(AUTH_WHITE_LIST).permitAll()
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/register/patient").permitAll()
+                        .requestMatchers("/api/exam/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/appointment/labs").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/appointment/available").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/result/{id}").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthFilter(userAuthenticationProvider), BasicAuthenticationFilter.class);
 

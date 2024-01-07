@@ -19,7 +19,6 @@ public class DatabaseInitializer implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final ExamRepository examRepository;
     private final ExamOfferRepository examOfferRepository;
-    private final ExamPackageRepository examPackageRepository;
     private final LabPointRepository labPointRepository;
     private final AppointmentService appointmentService;
 

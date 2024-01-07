@@ -11,7 +11,7 @@ import pl.edu.pw.zpoplaws.labsystem.Dto.ExamOfferDto;
 import pl.edu.pw.zpoplaws.labsystem.Service.ExamService;
 
 @RestController
-@RequestMapping("/exam")
+@RequestMapping("api/exam")
 @AllArgsConstructor
 public class ExamController {
 

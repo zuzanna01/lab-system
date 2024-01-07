@@ -11,14 +11,12 @@ import pl.edu.pw.zpoplaws.labsystem.Exception.AppException;
 import pl.edu.pw.zpoplaws.labsystem.Mapper.ExamMapper;
 import pl.edu.pw.zpoplaws.labsystem.Model.ExamOffer;
 import pl.edu.pw.zpoplaws.labsystem.Repository.ExamOfferRepository;
-import pl.edu.pw.zpoplaws.labsystem.Repository.ExamPackageRepository;
 
 @Service
 @RequiredArgsConstructor
 public class ExamServiceImpl implements ExamService {
 
     private final ExamOfferRepository examOfferRepository;
-    private final ExamPackageRepository examPackageRepository;
     private final ExamMapper examMapper;
 
 

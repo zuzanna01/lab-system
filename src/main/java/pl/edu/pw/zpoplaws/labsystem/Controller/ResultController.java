@@ -16,7 +16,7 @@ import pl.edu.pw.zpoplaws.labsystem.Service.ManagementService;
 import pl.edu.pw.zpoplaws.labsystem.Service.ResultService;
 
 @RestController
-@RequestMapping("/result")
+@RequestMapping("/api/result")
 @AllArgsConstructor
 public class ResultController {
 
