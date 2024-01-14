@@ -114,7 +114,8 @@ public class DatabaseInitializer implements CommandLineRunner {
 
         for(LabPoint lab :labs) {
 //            appointmentService.createAppointments(LocalDate.of(2023, 12,24), LocalDate.of(2023, 12,29), lab.getId());
-
+            //lab.setPhoneNumber("+48 456 228 785");
+           // labPointRepository.save(lab);
             //var timetable = appointmentService.getAvailableAppointments();
         }
 

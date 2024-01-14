@@ -6,7 +6,6 @@ import java.time.format.DateTimeFormatter;
 
 @Configuration
 public class DateTimeFormatterConfig {
-
     @Bean
     public DateTimeFormatter dateTimeFormatter() {
         return DateTimeFormatter.ISO_DATE_TIME;

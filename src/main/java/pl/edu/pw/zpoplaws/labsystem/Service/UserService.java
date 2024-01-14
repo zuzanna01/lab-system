@@ -23,4 +23,8 @@ public interface UserService {
     UserDto inactivateUser(ObjectId userId);
 
     List<UserDto> getAccountsByPesel(String pesel);
+
+    Boolean changePassword(ObjectId id, String newPassword);
+
+
 }

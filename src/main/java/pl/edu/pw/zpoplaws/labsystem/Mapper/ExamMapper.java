@@ -1,7 +1,9 @@
 package pl.edu.pw.zpoplaws.labsystem.Mapper;
 
 import org.springframework.stereotype.Component;
+import pl.edu.pw.zpoplaws.labsystem.Dto.ExamDto;
 import pl.edu.pw.zpoplaws.labsystem.Dto.ExamOfferDto;
+import pl.edu.pw.zpoplaws.labsystem.Model.Exam;
 import pl.edu.pw.zpoplaws.labsystem.Model.ExamOffer;
 
 import java.util.Locale;
@@ -21,5 +23,13 @@ public class ExamMapper {
                 requirements(examOffer.getRequirements()).
                 examsCodes(examOffer.getExams().stream().map(exam -> exam.getICD9code()).toList()).
                 build();
+    }
+
+    public static ExamDto toDto(Exam exam) {
+         return ExamDto.builder().
+                 id(exam.getId().toString()).
+                 name(exam.getName()).
+                 ICD9code(exam.getICD9code()).
+                 build();
     }
 }

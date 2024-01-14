@@ -21,7 +21,7 @@ public class Result {
     @DBRef
     User patient;
     @DBRef
-    ExamOffer exam;
+    ExamOffer examOffer;
     @DBRef
     User uploadEmployee;
     @DBRef
@@ -45,7 +45,7 @@ public class Result {
                 creationTime(LocalDateTime.now()).
                 createEmployee(employee).
                 patient(appointment.getPatient()).
-                exam(appointment.getExamOffer()).
+                examOffer(appointment.getExamOffer()).
                 labPoint(appointment.getLabPoint()).
                 build();
     }

@@ -26,9 +26,8 @@
             </addr>
             <patient>
                 <name>
-                    <given>Jan</given>
-                    <given>Franciszek</given>
-                    <family>Kowalski</family>
+                    <given>Anna</given>
+                    <family>Kowalska</family>
                 </name>
                 <administrativeGenderCode code="M" codeSystem="2.16.840.1.113883.5.1"/>
                 <birthTime value="19620915"/>

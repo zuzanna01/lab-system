@@ -1,12 +1,13 @@
 package pl.edu.pw.zpoplaws.labsystem.Dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-@AllArgsConstructor
 @Data
 @Builder
-public class ExamOrderDto {
+public class ExamDto {
+
     String id;
+    String ICD9code;
+    String name;
 }

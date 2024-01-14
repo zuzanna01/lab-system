@@ -1,6 +1,7 @@
 package pl.edu.pw.zpoplaws.labsystem.Controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
@@ -40,7 +41,6 @@ public class AuthorizationController {
         var refreshToken = userAuthProvider.createToken(user.getId(),startValidity,refreshValidity);
         var accessCookie = userAuthProvider.createCookie("access_token", accessToken,60*60-5);
         var refreshCookie = userAuthProvider.createCookie("refresh_token",refreshToken,70*60-5);
-        refreshCookie.setPath("/auth/refresh");
         servletResponse.addCookie(accessCookie);
         servletResponse.addCookie(refreshCookie);
 
@@ -69,7 +69,7 @@ public class AuthorizationController {
         return ResponseEntity.ok(user);
     }
 
-    @PostMapping("register/employee")
+    @PostMapping("/register/employee")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<UserDto>registerEmployee(@RequestBody SignUpDto signUpDto) {
         var user =  userService.register(signUpDto, UserRole.ROLE_EMPLOYEE);
@@ -95,17 +95,33 @@ public class AuthorizationController {
 
     @PostMapping("/logout")
     public void logout(@CookieValue(name="access_token") String token, HttpServletResponse servletResponse){
-        ZoneOffset zoneOffset = OffsetDateTime.now().getOffset ();
+        ZoneOffset zoneOffset = OffsetDateTime.now().getOffset();
         var now = LocalDateTime.now();
-        var startValidity = now.toInstant(zoneOffset);
-        var endAccessValidity = now.minusDays(1).toInstant(zoneOffset);
-        var endRefreshValidity = now.minusDays(1).toInstant(zoneOffset);
-        var id = userAuthProvider.getID(token);
-        var accessToken = userAuthProvider.createToken(id,startValidity,endAccessValidity);
-        var refreshToken = userAuthProvider.createToken(id,startValidity,endRefreshValidity);
-        var accessCookie = userAuthProvider.createCookie("access_token", accessToken,1);
-        var refreshCookie = userAuthProvider.createCookie("refresh_token",refreshToken,1);
+
+        // Set expiration time in the past for invalidating the cookies
+        var expirationTime = now.minusDays(1).atOffset(zoneOffset);
+
+        // Invalidate access_token cookie
+        Cookie accessCookie = new Cookie("access_token", null);
+        accessCookie.setMaxAge(5); // Set the cookie to expire immediately
+        accessCookie.setPath("/"); // Set the cookie's path
+        accessCookie.setHttpOnly(true); // Set HttpOnly flag if required
+        accessCookie.setSecure(true); // Set Secure flag if required
         servletResponse.addCookie(accessCookie);
+
+        // Invalidate refresh_token cookie
+        Cookie refreshCookie = new Cookie("refresh_token", null);
+        refreshCookie.setMaxAge(5); // Set the cookie to expire immediately
+        refreshCookie.setPath("/"); // Set the cookie's path
+        refreshCookie.setHttpOnly(true); // Set HttpOnly flag if required
+        refreshCookie.setSecure(true); // Set Secure flag if required
         servletResponse.addCookie(refreshCookie);
     }
+
+    @PutMapping("/password")
+    public ResponseEntity<Boolean> changePassword(@CookieValue(name="access_token") String token, String newPassword) {
+        var id = userAuthProvider.getID(token);
+        return ResponseEntity.ok(userService.changePassword(new ObjectId(id),newPassword));
+    }
+
 }

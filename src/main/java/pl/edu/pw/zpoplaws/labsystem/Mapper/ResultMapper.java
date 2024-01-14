@@ -17,7 +17,7 @@ public class ResultMapper {
 
     private final DateTimeFormatter formatter;
     public ResultDto toDto(Result result) {
-        String examName = Optional.ofNullable(result.getExam())
+        String examName = Optional.ofNullable(result.getExamOffer())
                 .map(exam -> exam.getName())
                 .orElse(null);
 
@@ -66,7 +66,7 @@ public class ResultMapper {
 
         ResultPatientInfo resultPatientInfo = new ResultPatientInfo();
         resultPatientInfo.setId(result.getId() != null ? result.getId().toString() : null);
-        resultPatientInfo.setExamName(result.getExam() != null ? result.getExam().getName() : null);
+        resultPatientInfo.setExamName(result.getExamOffer() != null ? result.getExamOffer().getName() : null);
         resultPatientInfo.setLastChangeTime(getLastChangeTime(result));
         resultPatientInfo.setStatus(translateStatus(result.getStatus()));
 

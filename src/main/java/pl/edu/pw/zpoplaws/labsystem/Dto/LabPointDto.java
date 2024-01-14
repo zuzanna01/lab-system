@@ -13,5 +13,6 @@ public class LabPointDto {
     private String address;
     private String openingTime;
     private String closingTime;
+    private String phoneNumber;
 
 }

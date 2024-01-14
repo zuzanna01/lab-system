@@ -28,7 +28,8 @@ public class User {
     public String getUserName() {
         String firstName = Optional.ofNullable(getName()).orElse("");
         String lastName = Optional.ofNullable(getLastname()).orElse("");
-
         return (firstName + " " + lastName).trim();
     }
+
+
 }

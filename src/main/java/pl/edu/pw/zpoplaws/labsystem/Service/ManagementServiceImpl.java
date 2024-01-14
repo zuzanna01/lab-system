@@ -39,14 +39,14 @@ public class ManagementServiceImpl implements ManagementService {
         var appointment = appointmentService.findAppointment(appointmentId);
         appointmentService.completeAppointment(appointmentId);
         var employee = userService.findById(employeeId);
-        var result = resultService.createResultOrder(appointment, employee);
+        var result = resultService.createResult(appointment, employee);
         return resultMapper.toDto(result);
     }
 
     @Override
     public ResultDto uploadResult(ObjectId resultId, String xmlFile, ObjectId employeeId) {
-        var user = userService.findById(employeeId);
-        var result = resultService.uploadResult(resultId, xmlFile, user);
+        var employee = userService.findById(employeeId);
+        var result = resultService.uploadResult(resultId, xmlFile, employee);
         return resultMapper.toDto(result);
     }
 

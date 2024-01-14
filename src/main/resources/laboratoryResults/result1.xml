@@ -16,19 +16,17 @@
     <templateId root="2.16.840.1.113883.3.4424.13.10.2.3"/>
     <patientRole>
       <id extension="12345" root="2.16.840.1.113883.3.4424.2.7.0.17.1" displayable="false"/>
-      <id extension="62091599999" root="2.16.840.1.113883.3.4424.1.1.616" displayable="true"/>
+      <id extension="01300484456" root="2.16.840.1.113883.3.4424.1.1.616" displayable="true"/>
       <addr>
+        <postalCode>00-950</postalCode>
         <city>Warszawa</city>
-        <postalCode>01-134</postalCode>
-        <streetName>Odkryta</streetName>
-        <houseNumber>41</houseNumber>
-        <unitID>12</unitID>
+        <streetName>Świętokrzyska</streetName>
+        <houseNumber>60</houseNumber>
       </addr>
       <patient>
         <name>
-          <given>Jan</given>
-          <given>Franciszek</given>
-          <family>Kowalski</family>
+          <given>Anna</given>
+          <family>Kowalska</family>
         </name>
         <administrativeGenderCode code="M" codeSystem="2.16.840.1.113883.5.1"/>
         <birthTime value="19620915"/>
@@ -55,10 +53,11 @@
         <name>Laboratorium analityczne ABC-LAB</name>
         <telecom use="PUB" value="tel:22-1111123"/>
         <addr>
-          <postalCode>00-950</postalCode>
           <city>Warszawa</city>
-          <streetName>Świętokrzyska</streetName>
-          <houseNumber>60</houseNumber>
+          <postalCode>01-134</postalCode>
+          <streetName>Odkryta</streetName>
+          <houseNumber>41</houseNumber>
+          <unitID>12</unitID>
         </addr>
         <asOrganizationPartOf>
           <wholeOrganization>

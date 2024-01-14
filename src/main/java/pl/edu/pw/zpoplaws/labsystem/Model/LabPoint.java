@@ -2,6 +2,7 @@ package pl.edu.pw.zpoplaws.labsystem.Model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Value;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -10,8 +11,8 @@ import pl.edu.pw.zpoplaws.labsystem.Dto.LabPointDto;
 
 import java.time.LocalTime;
 
+@Data
 @Builder
-@Value
 @AllArgsConstructor
 @Document(collection = "labPoints")
 public class LabPoint {
@@ -21,6 +22,7 @@ public class LabPoint {
     String address;
     LocalTime openingTime;
     LocalTime closingTime;
+    String phoneNumber;
 
     public LabPointDto toDto(){
         return LabPointDto.builder().
@@ -28,6 +30,7 @@ public class LabPoint {
                 address(this.address).
                 openingTime(this.openingTime.toString()).
                 closingTime(this.closingTime.toString()).
+                phoneNumber(this.phoneNumber).
                 build();
     }
 

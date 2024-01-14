@@ -131,11 +131,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public Appointment makeAppointment(ObjectId patientId, ObjectId examId, ObjectId labPoint, LocalDateTime localDateTime) {
-        return null;
-    }
-
-    @Override
     public Appointment findAvailableAppointment(ObjectId LabPointId, LocalDateTime localDateTime) {
         return appointmentRepository.findAvailableAppointmentsByDateTimeAndLabPoint(LabPointId, localDateTime).
                 stream().findFirst().orElseThrow(() -> new AppException("No available appointment found", HttpStatus.NOT_FOUND));
@@ -149,7 +144,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public Page<Appointment> getTodayAppointmentsByLabPoint(ObjectId labPointId, Pageable pageable) {
-        var today = LocalDate.now();
+        var today = LocalDate.now().minusDays(1);
         var start = LocalDateTime.of(today, LocalTime.of(0, 0, 1));
         var end = LocalDateTime.of(today, LocalTime.of(23, 59, 59));
         return appointmentRepository.findReservedAppointmentsByDateTimeAndLabPoint(labPointId, start, end, pageable);

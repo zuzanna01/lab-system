@@ -9,9 +9,9 @@ import pl.edu.pw.zpoplaws.labsystem.Model.Appointment;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface AppointmentRepository extends MongoRepository<Appointment, ObjectId> {
-
 
     @Query("{'labPoint.id': ?0, 'dateTime': {$gte: ?1, $lte: ?2}, 'status': 'AVAILABLE'}")
     List<Appointment> findAvailableAppointmentsByLabPointAndDateTimeBetween(
@@ -27,4 +27,5 @@ public interface AppointmentRepository extends MongoRepository<Appointment, Obje
     @Query("{'patient' : ?0,'dateTime': {$gte: ?1}, 'status' : 'RESERVED'}")
     Page<Appointment> findFutureReservedAppointmentsByPatient(ObjectId patientId, LocalDateTime startTime, Pageable pageable);
 
+    Optional<Appointment> findById(ObjectId appointmentId);
 }

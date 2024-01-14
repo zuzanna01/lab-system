@@ -38,12 +38,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(AUTH_WHITE_LIST).permitAll()
-                        .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/auth/register/patient").permitAll()
-                        .requestMatchers("/api/exam/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/auth/register/patient").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/exam/offer").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/appointment/labs").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/appointment/available").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/result/{id}").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthFilter(userAuthenticationProvider), BasicAuthenticationFilter.class);
 

@@ -27,8 +27,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(String id) {
-        return userRepository.findById(new ObjectId(id)).orElseThrow(
-                () -> new AppException("Unknown user", HttpStatus.NOT_FOUND));
+        try{
+            return this.findById(new ObjectId(id));
+        }catch (Exception exception) {
+            throw new AppException("Wrong id format", HttpStatus.NOT_FOUND);
+        }
     }
 
     @Override
@@ -42,6 +45,7 @@ public class UserServiceImpl implements UserService {
         var user = userRepository.findByEmail(credentials.getEmail()).orElseThrow(
                 () -> new AppException("Unknown user", HttpStatus.NOT_FOUND));
 
+        if (user.getIsActive() == false) throw new  AppException("Unknown user", HttpStatus.BAD_REQUEST);
         if (passwordEncoder.matches(CharBuffer.wrap(credentials.getPassword()), user.getPassword())) {
             return userMapper.toDto(user);
         }
@@ -92,6 +96,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAccountsByPesel(String pesel) {
         return userRepository.findByPESEL(pesel).stream().map(UserMapper::toDto).toList();
+    }
+
+    @Override
+    public Boolean changePassword(ObjectId userId, String newPassword) {
+        if(newPassword.length()<9){
+            throw new AppException("Password too short", HttpStatus.BAD_REQUEST);
+        }
+        var user = this.findById(userId);
+        user.setPassword(passwordEncoder.encode(CharBuffer.wrap(newPassword)));
+        return userRepository.save(user) != null;
     }
 
 

@@ -25,7 +25,6 @@ import pl.edu.pw.zpoplaws.labsystem.Model.Appointment;
 import pl.edu.pw.zpoplaws.labsystem.Model.Result;
 import pl.edu.pw.zpoplaws.labsystem.Model.User;
 import pl.edu.pw.zpoplaws.labsystem.Repository.ResultRepository;
-import pl.edu.pw.zpoplaws.labsystem.Repository.UserRepository;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -34,12 +33,12 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
 public class ResultServiceImpl implements ResultService {
+
 
     private final ResultRepository resultRepository;
     private final ResultMapper resultMapper;
@@ -62,7 +61,7 @@ public class ResultServiceImpl implements ResultService {
     }
 
     @Override
-    public Result createResultOrder(Appointment appointment, User employee) {
+    public Result createResult(Appointment appointment, User employee) {
         var result = Result.createResultOrder(appointment,employee);
         return resultRepository.save(result);
     }
@@ -71,16 +70,23 @@ public class ResultServiceImpl implements ResultService {
     public byte[] getResultPdf(ObjectId id) {
         var result = this.findResultById(id);
         var html = this.convertToHtml(result.getXmlFile());
-        return convertToPdf(html);
+        return this.convertToPdf(html);
     }
 
-    @Override
-    public boolean validateXmlFile(String xml) {
-        return true;
+    private String convertToHtml(String xml) {
+        try {
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer(new StreamSource(xsltFilePath));
+            StringWriter writer = new StringWriter();
+            transformer.transform(new StreamSource(new StringReader(xml)), new StreamResult(writer));
+            String htmlResult = writer.toString();
+            return htmlResult;
+        } catch (Exception e) {
+            throw new AppException("Couldn't render pdf", HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @Override
-    public byte[] convertToPdf(String html) {
+    private byte[] convertToPdf(String html) {
         Document document = Jsoup.parse(html);
         document.outputSettings().syntax(Document.OutputSettings.Syntax.html);
 
@@ -94,27 +100,17 @@ public class ResultServiceImpl implements ResultService {
             builder.run();
             pdf = os.toByteArray();
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new AppException("Couldn't render pdf", HttpStatus.BAD_REQUEST);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new AppException("Couldn't render pdf", HttpStatus.BAD_REQUEST);
         }
         return pdf;
     }
 
-    @Override
-    public String convertToHtml(String xml) {
-        try {
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer(new StreamSource(xsltFilePath));
-            StringWriter writer = new StringWriter();
-            transformer.transform(new StreamSource(new StringReader(xml)), new StreamResult(writer));
-            String htmlResult = writer.toString();
-            return htmlResult;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    private boolean validateXmlFile(String xml) {
+        return true;
     }
+
 
     @Override
     public Page<ResultPatientInfo> getResultsByPatient(ObjectId patientId, Pageable pageable) {
