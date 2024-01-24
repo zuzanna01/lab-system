@@ -51,12 +51,16 @@ public class ResultServiceImpl implements ResultService {
     @Override
     public Result uploadResult(ObjectId resultId, String xml, User employee) {
         var resultOrder = this.findResultById(resultId);
+
         String fullxml = this.enrich(xml);
         if (validateXmlFile(xml) ) {
+            if(!resultOrder.getPatient().getPESEL().equals(this.getPeselFromXml(xml))){
+                throw  new AppException("Niezgodny PESEL", HttpStatus.BAD_REQUEST);
+            }
             resultOrder.uploadResult(fullxml, employee);
             return resultRepository.save(resultOrder);
         } else {
-            return null;
+            throw  new AppException("Niepoprawny plik ",HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -67,8 +71,11 @@ public class ResultServiceImpl implements ResultService {
     }
 
     @Override
-    public byte[] getResultPdf(ObjectId id) {
+    public byte[] getResultPdf(ObjectId patientId, ObjectId id) {
         var result = this.findResultById(id);
+        if(result.getPatient().getId() != patientId){
+            throw new AppException("Not your result", HttpStatus.UNAUTHORIZED);
+        }
         var html = this.convertToHtml(result.getXmlFile());
         return this.convertToPdf(html);
     }

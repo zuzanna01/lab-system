@@ -40,7 +40,7 @@ public class Appointment {
 
     public void reserve(ExamOffer examOffer, User patient) {
         this.examOffer = examOffer;
-        this.patient =patient;
+        this.patient = patient;
         this.status = Status.RESERVED;
     }
 

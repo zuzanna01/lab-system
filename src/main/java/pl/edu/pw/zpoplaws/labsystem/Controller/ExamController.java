@@ -15,13 +15,13 @@ import pl.edu.pw.zpoplaws.labsystem.Service.ExamService;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/exam")
+@RequestMapping("/api/exam")
 @AllArgsConstructor
 public class ExamController {
 
     private final ExamService examService;
 
-    @GetMapping
+    @GetMapping("")
     public ResponseEntity<List<ExamDto>> getAllExams(){
         return ResponseEntity.ok(examService.getAllExams());
     }

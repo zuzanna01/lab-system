@@ -144,7 +144,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public Page<Appointment> getTodayAppointmentsByLabPoint(ObjectId labPointId, Pageable pageable) {
-        var today = LocalDate.now().minusDays(1);
+        var today = LocalDate.now();
         var start = LocalDateTime.of(today, LocalTime.of(0, 0, 1));
         var end = LocalDateTime.of(today, LocalTime.of(23, 59, 59));
         return appointmentRepository.findReservedAppointmentsByDateTimeAndLabPoint(labPointId, start, end, pageable);

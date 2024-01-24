@@ -36,11 +36,13 @@ public class ResultController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_PATIENT')")
-    public ResponseEntity<byte[]> getResultPdf(@PathVariable String id) {
+    public ResponseEntity<byte[]> getResultPdf(@CookieValue(name="access_token") String authToken, @PathVariable String id) {
+
+        var patientId = new ObjectId(userAuthProvider.getID(authToken));
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=myfile.pdf");
-        var body= resultService.getResultPdf(new ObjectId(id));
+        var body= resultService.getResultPdf(patientId, new ObjectId(id));
         return ResponseEntity.ok().headers(headers).body(body);
     }
 

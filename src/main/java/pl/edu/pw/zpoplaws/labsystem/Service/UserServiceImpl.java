@@ -30,20 +30,20 @@ public class UserServiceImpl implements UserService {
         try{
             return this.findById(new ObjectId(id));
         }catch (Exception exception) {
-            throw new AppException("Wrong id format", HttpStatus.NOT_FOUND);
+            throw new AppException("Wrong id format", HttpStatus.BAD_REQUEST);
         }
     }
 
     @Override
     public User findById(ObjectId id) {
         var optionalUser = userRepository.findById(id);
-        return optionalUser.orElseThrow(() -> new AppException("Unknown user", HttpStatus.NOT_FOUND));
+        return optionalUser.orElseThrow(() -> new AppException("Unknown user", HttpStatus.BAD_REQUEST));
     }
 
     @Override
     public UserDto login(CredentialsDto credentials) {
         var user = userRepository.findByEmail(credentials.getEmail()).orElseThrow(
-                () -> new AppException("Unknown user", HttpStatus.NOT_FOUND));
+                () -> new AppException("Unknown user", HttpStatus.BAD_REQUEST));
 
         if (user.getIsActive() == false) throw new  AppException("Unknown user", HttpStatus.BAD_REQUEST);
         if (passwordEncoder.matches(CharBuffer.wrap(credentials.getPassword()), user.getPassword())) {

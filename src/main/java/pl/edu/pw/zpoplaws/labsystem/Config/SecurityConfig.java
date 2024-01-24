@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/exam/offer").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/appointment/labs").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/appointment/available").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/exam").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/api/auth/refresh").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthFilter(userAuthenticationProvider), BasicAuthenticationFilter.class);
 

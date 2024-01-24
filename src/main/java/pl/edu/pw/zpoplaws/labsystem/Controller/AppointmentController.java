@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import pl.edu.pw.zpoplaws.labsystem.Config.UserAuthenticationProvider;
 import pl.edu.pw.zpoplaws.labsystem.Dto.AppointmentDto;
@@ -64,6 +65,7 @@ public class AppointmentController {
 
     @PostMapping("/confirm")
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
+    @Transactional
     public ResponseEntity<String> confirmAppointment(@CookieValue(name="access_token") String authToken, String appointmentId) {
         var employeeId = new ObjectId(userAuthProvider.getID(authToken));
         var resultOrder = managementService.createResultOrder(new ObjectId(appointmentId), employeeId);
@@ -79,6 +81,7 @@ public class AppointmentController {
 
     @GetMapping("/today")
     @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
+    @Transactional
     public ResponseEntity<Page<AppointmentDto>> getTodayAppointments(String labId, Pageable pageable) {
         var body = appointmentService.getTodayAppointmentsByLabPoint(new ObjectId(labId), pageable);
         return ResponseEntity.ok().body(body.map(appointmentMapper::toDto));
@@ -86,6 +89,7 @@ public class AppointmentController {
 
     @GetMapping("/future")
     @PreAuthorize("hasRole('ROLE_PATIENT')")
+    @Transactional
     public ResponseEntity<Page<AppointmentDto>> getFutureAppointmentsForPatient(@CookieValue(name = "access_token") String token, Pageable pageable) {
         var patientId = new ObjectId(userAuthProvider.getID(token));
         var body = appointmentService.getFutureAppointmentsByPatient(patientId, pageable);

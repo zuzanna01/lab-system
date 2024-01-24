@@ -15,6 +15,7 @@ import pl.edu.pw.zpoplaws.labsystem.Dto.CredentialsDto;
 import pl.edu.pw.zpoplaws.labsystem.Dto.SignUpDto;
 import pl.edu.pw.zpoplaws.labsystem.Dto.UserDetailsResponse;
 import pl.edu.pw.zpoplaws.labsystem.Dto.UserDto;
+import pl.edu.pw.zpoplaws.labsystem.Model.User;
 import pl.edu.pw.zpoplaws.labsystem.Model.UserRole;
 import pl.edu.pw.zpoplaws.labsystem.Service.UserService;
 
@@ -31,24 +32,15 @@ public class AuthorizationController {
 
     @PostMapping("/login")
     public void login(@RequestBody CredentialsDto credentials, HttpServletResponse servletResponse) {
-        var now = LocalDateTime.now();
-        ZoneOffset zoneOffset = OffsetDateTime.now().getOffset ();
-        var startValidity = now.toInstant(zoneOffset);
-        var accessValidity = now.plusMinutes(60).toInstant(zoneOffset);
-        var refreshValidity = now.plusMinutes(70).toInstant(zoneOffset);
         var user = userService.login(credentials);
-        var accessToken = userAuthProvider.createToken(user.getId(),startValidity,accessValidity);
-        var refreshToken = userAuthProvider.createToken(user.getId(),startValidity,refreshValidity);
-        var accessCookie = userAuthProvider.createCookie("access_token", accessToken,60*60-5);
-        var refreshCookie = userAuthProvider.createCookie("refresh_token",refreshToken,70*60-5);
+        var accessCookie = createCookie("access_token",user.getId(),2);
+        var refreshCookie = createCookie("refresh_token",user.getId(),10);
         servletResponse.addCookie(accessCookie);
         servletResponse.addCookie(refreshCookie);
 
         var response = UserDetailsResponse
-                .builder()
-                .userName(user.getName() + " " + user.getLastname())
-                .userRole(user.getRole())
-                .build();
+                .builder().userName(user.getName() + " " + user.getLastname())
+                .userRole(user.getRole()).build();
 
         servletResponse.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
@@ -61,6 +53,15 @@ public class AuthorizationController {
             e.printStackTrace();
             servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Cookie createCookie(String name, String userId, int time){
+        var now = LocalDateTime.now();
+        ZoneOffset zoneOffset = OffsetDateTime.now().getOffset ();
+        var startValidity = now.toInstant(zoneOffset);
+        var accessValidity = now.plusMinutes(time).toInstant(zoneOffset);
+        var token = userAuthProvider.createToken(userId,startValidity,accessValidity);
+        return userAuthProvider.createCookie(name,token,time*60-5);
     }
 
     @PostMapping("/register/patient")

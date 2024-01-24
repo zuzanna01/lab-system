@@ -16,7 +16,7 @@ public interface ResultService {
 
     Result uploadResult(ObjectId resultId, String xml, User employee);
 
-    byte[] getResultPdf(ObjectId id);
+    byte[] getResultPdf(ObjectId patientId,ObjectId id);
 
     Page<ResultPatientInfo> getResultsByPatient(ObjectId patientId, Pageable pageable);
 
